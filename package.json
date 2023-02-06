@@ -1,0 +1,32 @@
+{
+    "name": "com.virgis.virgis.ui",
+    "version": "3.0.0",
+    "displayName": "ViRGiS UI",
+    "description": "ViRGiS is a GIS platform for VR. See https://www.vrgis.org for more details.",
+    "unity": "2020.3",
+    "scopedRegistries": [
+        {
+          "name": "package.openupm.com",
+          "url": "https://package.openupm.com",
+          "scopes": [
+          ]
+        }
+      ],
+    "dependencies": {
+    },
+    "keywords": [
+        "geometry",
+        "geojson",
+        "GeoJSON.NET",
+        "toolkit",
+        "gdal",
+        "pdal",
+        "mdal",
+        "GIS"
+      ],
+    "author": {
+        "name": "Virgis Team",
+        "email": "info@virgis.org",
+        "url": "https://www.virgis.org"
+      }
+}
