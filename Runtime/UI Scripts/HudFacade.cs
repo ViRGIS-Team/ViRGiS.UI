@@ -40,7 +40,7 @@ public class HudFacade : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        AppState appState = AppState.instance;
+        State appState = State.instance;
         startsub = appState.editSession.StartEvent.Subscribe(OnEditSessionStart);
         stopsub = appState.editSession.EndEvent.Subscribe(OnEditSessionEnd);
         zoomsub = appState.Zoom.Event.Subscribe(OnZoomChanged);
@@ -60,7 +60,7 @@ public class HudFacade : MonoBehaviour
 
     public void onOrientation(Vector3 current) {
         current.y = 0;
-        double angle = Math.Floor(Vector3.SignedAngle(AppState.instance.map.transform.forward, current, AppState.instance.map.transform.up)/5)*5;
+        double angle = Math.Floor(Vector3.SignedAngle(State.instance.map.transform.forward, current, State.instance.map.transform.up)/5)*5;
         if (angle < 0)
             angle = 360 + angle;
         HudCentreText.text = angle.ToString();

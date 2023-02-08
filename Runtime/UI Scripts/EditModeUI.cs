@@ -28,11 +28,11 @@ namespace Virgis {
         public Toggle snapGridToggle;
         public Toggle snapAnchorToggle;
 
-        private AppState m_appState;
+        private State m_appState;
 
         // Start is called before the first frame update
         void Start() {
-            m_appState = AppState.instance;
+            m_appState = State.instance;
 
             // There is a bug in Unity where if you set OnValueChange event
             // in Unity inspector, the method will be called with the same

@@ -44,13 +44,13 @@ namespace Virgis {
         public GameObject layersUI;
         public GameObject startMenu;
 
-        private AppState _appState;
+        private State _appState;
         private IDisposable startsub;
         private IDisposable stopsub;
 
         // Start is called before the first frame update
         void Start() {
-            _appState = AppState.instance;
+            _appState = State.instance;
             if (_appState.editSession.IsActive()) {
                 startEditButton.interactable = false;
                 stopSaveEditButton.interactable = true;

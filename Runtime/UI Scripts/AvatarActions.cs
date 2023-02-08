@@ -26,7 +26,7 @@ namespace Virgis
         protected Transform m_currentSelected; // current marker in selected state
 
         protected Vector3? m_from; // caches the last position indicated by the user to which to move the selected component
-        protected AppState m_appState;
+        protected State m_appState;
         private Rigidbody m_thisRigidbody;
         protected bool m_axisEdit = false; // Whether we are in AxisEdit mode
         protected Quaternion m_panTarget = Quaternion.identity;
@@ -40,7 +40,7 @@ namespace Virgis
         public void Start()
         {
             Debug.Log("Avatar awakens");
-            m_appState = AppState.instance;
+            m_appState = State.instance;
             m_appState.trackingSpace = MovementVector;
             m_appState.mainCamera = MainCamera;
             m_thisRigidbody = GetComponent<Rigidbody>();
@@ -53,6 +53,11 @@ namespace Virgis
             if (m_appState.Project.Get() != null)
                 onProjectLoad(m_appState.Project.Get());
             m_subs.Add(m_appState.ConfigEvent.Subscribe(onConfigLoaded));
+        }
+
+        public void Update()
+        {
+            //do nothing
         }
 
         public void OnDestroy() {
@@ -77,9 +82,10 @@ namespace Virgis
             {
                 m_appState.project.Scale = new List<float>() { 1f, 1f, 1f, 1f };
             };
-            m_appState.Zoom.Set(m_appState.project.Scale[0]);
+            m_appState.SetScale(m_appState.project.Scale[0]);
             m_appState.currentView = 0;
-            transform.position = m_appState.project.Cameras[m_appState.currentView].Coordinates.Vector3();
+            //TODO CAMERAS
+            //transform.position = m_appState.project.Cameras[m_appState.currentView].Coordinates.Vector3();
             while (m_appState.project.Cameras.Count < 4)
             {
                 m_appState.project.Cameras.Add(m_appState.project.Cameras[0]);
@@ -118,14 +124,14 @@ namespace Virgis
             if (zoom != 0)
             {
 
-                Scale(AppState.instance.Zoom.Get() * (1 - zoom));
+                Scale(State.instance.Zoom.Get() * (1 - zoom));
             }
         }
 
         public void Scale(float scale)
         {
             Vector3 here = m_appState.map.transform.InverseTransformPoint(transform.position);
-            m_appState.Zoom.Set(scale);
+            m_appState.SetScale(scale);
             transform.position = m_appState.map.transform.TransformPoint(here);
         }
 

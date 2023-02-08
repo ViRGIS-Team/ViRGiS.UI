@@ -38,14 +38,14 @@ namespace Virgis {
         public string projectDirectory;
         public string searchPattern;
         
-        protected AppState m_appState;
+        protected State m_appState;
         protected List<IDisposable> m_subs = new List<IDisposable>();
 
         protected SearchOption m_searchOptions = SearchOption.AllDirectories;
 
         // Start is called before the first frame update
         protected void Start() {
-            m_appState = AppState.instance;
+            m_appState = State.instance;
             m_subs.Add(m_appState.Project.Event.Subscribe(OnProjectLoad));
             if (m_appState.Project.Get() != null)
                 OnProjectLoad(m_appState.Project.Get());
@@ -135,8 +135,8 @@ namespace Virgis {
             if (!@event.isDirectory) {
                 // Kill off all of the existing layers
                 if (m_appState.layers != null)
-                    foreach (VirgisLayer layer in m_appState.layers) {
-                        Destroy(layer.gameObject);
+                    foreach (IVirgisLayer layer in m_appState.layers) {
+                        layer.Destroy();
                     }
                 m_appState.clearLayers();
 
@@ -150,7 +150,7 @@ namespace Virgis {
                 //create the new layers
                 Debug.Log($"File selected : {@event.File}");
                 gameObject.SetActive(false);
-                if (!m_appState.map.GetComponent<MapInitialize>().Load(@event.File)) {
+                if (!m_appState.map.GetComponent<IVirgisLayer>().Load(@event.File)) {
                     gameObject.SetActive(true);
                 }
             } else {

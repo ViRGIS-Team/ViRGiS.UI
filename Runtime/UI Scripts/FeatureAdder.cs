@@ -31,7 +31,7 @@ namespace Virgis {
         public GameObject blueCubePrefab;
         public GameObject defaultMarkerShape;
 
-        private AppState _appState;
+        private State _appState;
         private GameObject _markerShape;
         private Dictionary<Guid, GameObject> _markerShapeMap;
 
@@ -40,13 +40,13 @@ namespace Virgis {
         private bool _waitingForSecondPress;
 
         // variables for adding feature - currently used for Line and Polygon features
-        private VirgisFeature _newFeature;
-        private Datapoint _firstVertex;
-        private List<Datapoint> _lastVertex = new List<Datapoint>();
+        private IVirgisFeature _newFeature;
+        //private IDatapoint _firstVertex;
+        //private List<Datapoint> _lastVertex = new List<Datapoint>();
 
         // Start is called before the first frame update
         void Start() {
-            _appState = AppState.instance;
+            _appState = State.instance;
             _markerShapeMap = new Dictionary<Guid, GameObject>();
             _markerShape = defaultMarkerShape;
             _appState.editSession.StartEvent.Subscribe(OnStartEditSession);
@@ -60,7 +60,7 @@ namespace Virgis {
             if (_appState.editSession.IsActive() && (_newFeature != null)) {
                 MoveArgs args = new MoveArgs();
                 args.pos = _markerShape.transform.position;
-                _lastVertex.ForEach(dp => dp.MoveTo(args));
+                //_lastVertex.ForEach(dp => dp.MoveTo(args));
             }
         }
 
@@ -101,10 +101,10 @@ namespace Virgis {
             if (_appState.editSession.IsActive()) {
                 IVirgisLayer editableLayer = _appState.editSession.editableLayer;
                 FeatureType dataType= editableLayer.featureType;
-                Datapoint[] vertexes;
+                //Datapoint[] vertexes;
                 switch (dataType) {
                     case FeatureType.POINT:
-                        VirgisFeature point = editableLayer.AddFeature(new Vector3[1] { posWhenSinglePress });
+                        IVirgisFeature point = editableLayer.AddFeature(new Vector3[1] { posWhenSinglePress });
                         point.UnSelected(SelectionType.SELECT);
                         break;
                     case FeatureType.LINE:
@@ -114,27 +114,27 @@ namespace Virgis {
                         } else {
                             _newFeature = editableLayer.AddFeature(new Vector3[2] { posWhenSinglePress, posWhenSinglePress + Vector3.one * 0.1f });
                             // get the last vertex
-                            vertexes = (_newFeature as Dataline).GetVertexes();
-                            _firstVertex = vertexes[0];
-                            _lastVertex.Add(vertexes[1]);
-                            _firstVertex.UnSelected(SelectionType.SELECT);
+                            //vertexes = (_newFeature as Dataline).GetVertexes();
+                            //_firstVertex = vertexes[0];
+                            //_lastVertex.Add(vertexes[1]);
+                            //_firstVertex.UnSelected(SelectionType.SELECT);
                         }
                         break;
                     case FeatureType.POLYGON:
                         if (_newFeature != null) {
-                            if (_lastVertex.Count == 1) {
-                                _newFeature.transform.GetComponentInChildren<Dataline>().AddVertex(posWhenSinglePress);
-                            } else {
-                                _lastVertex[0].UnSelected(SelectionType.SELECT);
-                                _lastVertex.RemoveAt(0);
-                            }
+                            //if (_lastVertex.Count == 1) {
+                            //    _newFeature.transform.GetComponentInChildren<Dataline>().AddVertex(posWhenSinglePress);
+                            //} else {
+                            //    _lastVertex[0].UnSelected(SelectionType.SELECT);
+                            //    _lastVertex.RemoveAt(0);
+                            //}
 
                         } else {
-                            _newFeature = editableLayer.AddFeature(new Vector3[4] { posWhenSinglePress, posWhenSinglePress + Vector3.right * 0.01f, posWhenSinglePress + Vector3.up * 0.01f, posWhenSinglePress });
-                            vertexes = (_newFeature as Datapolygon).GetVertexes();
-                            _firstVertex = vertexes[0];
-                            _lastVertex.Add(vertexes[1]);
-                            _lastVertex.Add(vertexes[2]);
+                            //_newFeature = editableLayer.AddFeature(new Vector3[4] { posWhenSinglePress, posWhenSinglePress + Vector3.right * 0.01f, posWhenSinglePress + Vector3.up * 0.01f, posWhenSinglePress });
+                            //vertexes = (_newFeature as Datapolygon).GetVertexes();
+                            //_firstVertex = vertexes[0];
+                            //_lastVertex.Add(vertexes[1]);
+                            //_lastVertex.Add(vertexes[2]);
                         }
                         break;
                 }
@@ -148,25 +148,25 @@ namespace Virgis {
                 switch (dataType) {
                     case FeatureType.LINE:
                         if (_newFeature != null) {
-                            VirgisFeature temp = _lastVertex[0];
-                            _lastVertex.Clear();
-                            temp.UnSelected(SelectionType.SELECT);
-                            // if edit mode is snap to anchor and start and end vertexes are at the same position
-                            if (_appState.editSession.mode == EditSession.EditMode.SnapAnchor &&
-                                _firstVertex.transform.position == temp.transform.position) {
-                                (_newFeature as Dataline).MakeLinearRing();
-                            }
-                            // complete adding line feature
-                            _newFeature = null;
+                            //VirgisFeature temp = _lastVertex[0];
+                            //_lastVertex.Clear();
+                            //temp.UnSelected(SelectionType.SELECT);
+                            //// if edit mode is snap to anchor and start and end vertexes are at the same position
+                            //if (_appState.editSession.mode == EditSession.EditMode.SnapAnchor &&
+                            //    _firstVertex.transform.position == temp.transform.position) {
+                            //    (_newFeature as Dataline).MakeLinearRing();
+                            //}
+                            //// complete adding line feature
+                            //_newFeature = null;
                         }
                         break;
                     case FeatureType.POLYGON:
                         if (_newFeature != null) {
-                            // complete adding polygon feature
-                            _newFeature = null;
-                            VirgisFeature temp = _lastVertex[0];
-                            _lastVertex.Clear();
-                            temp.UnSelected(SelectionType.SELECT);
+                            //// complete adding polygon feature
+                            //_newFeature = null;
+                            //VirgisFeature temp = _lastVertex[0];
+                            //_lastVertex.Clear();
+                            //temp.UnSelected(SelectionType.SELECT);
                         }
                         break;
                 }

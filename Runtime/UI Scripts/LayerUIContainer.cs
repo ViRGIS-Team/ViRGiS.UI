@@ -36,13 +36,13 @@ namespace Virgis
         public Text layerNameText;
         public Toggle viewLayerToggle;
 
-        private AppState m_appState;
+        private State m_appState;
         private IVirgisLayer m_layer;
         public Dictionary<Guid, LayerUIPanel> m_layersMap;
 
         void Awake()
         {
-            m_appState = AppState.instance;
+            m_appState = State.instance;
             if (viewLayerToggle != null)
                 viewLayerToggle.onValueChanged.AddListener(OnViewToggleValueChange);
         }
@@ -74,7 +74,7 @@ namespace Virgis
                     : m_layer.GetMetadata().DisplayName;
                 layerNameText.text = displayName;
                 if (layer.isContainer) {
-                    foreach (VirgisLayer subLayer in layer.subLayers) {
+                    foreach (IVirgisLayer subLayer in layer.subLayers) {
                         AddLayer(subLayer);
                     }
                 } else {

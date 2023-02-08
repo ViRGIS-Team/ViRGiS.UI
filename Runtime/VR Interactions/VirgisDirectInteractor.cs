@@ -1,4 +1,4 @@
-﻿/* MIT License
+/* MIT License
 
 Copyright (c) 2020 - 21 Runette Software
 
@@ -20,18 +20,30 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. */
 
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.UI;
 
 namespace Virgis {
-    public class QuitButton : MonoBehaviour {
 
-        public async void OnClick() {
-            Debug.Log("QuitButton.OnClick save before quit");
-            MapInitialize mi = AppState.instance.map.GetComponent<MapInitialize>();
-            await mi.Save(false);
-            Debug.Log("QuitButton.OnClick now quit");
-            Application.Quit();
+    public class VirgisDirectInteractor : VirgisInteractor
+    {
+
+        public override void UpdateUIModel(ref TrackedDeviceModel model)
+        {
+            // Start is called before the first frame update
+            if (!isActiveAndEnabled)
+                return;
+
+            model.position = transform.TransformPoint(0, -.5f, 0);
+            model.orientation = transform.rotation;
+
+            model.select = isUISelectActive;
+
+            List<Vector3> raycastPoints = model.raycastPoints;
+            raycastPoints.Clear();
+            raycastPoints.Add(transform.TransformPoint(0, -.5f, 0));
+            raycastPoints.Add(transform.TransformPoint(0,.5f,0));
         }
     }
 }

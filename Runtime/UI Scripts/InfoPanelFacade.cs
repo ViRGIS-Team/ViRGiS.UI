@@ -32,14 +32,14 @@ namespace Virgis {
         public bool leftInfoPanel;
         public Text textBox;
 
-        private AppState m_appState;
+        private State m_appState;
         private string m_lastText = "";
         private bool m_active = true;
 
 
         // Start is called before the first frame update
         void Start() {
-            m_appState = AppState.instance;
+            m_appState = State.instance;
             if (leftInfoPanel) {
                 m_appState.Info.Event.Subscribe(UpdateText);
                 m_appState.ButtonStatus.Event.Subscribe(ButtonChange);

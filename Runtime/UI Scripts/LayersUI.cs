@@ -40,7 +40,7 @@ namespace Virgis
         public GameObject layerPanelPrefab;
         public GameObject menus;
 
-        private AppState m_appState;
+        private State m_appState;
         private Dictionary<Guid, LayerUIPanel> m_layersMap;
         private IDisposable m_startsub;
         private IDisposable m_stopsub;
@@ -49,7 +49,7 @@ namespace Virgis
         // Start is called before the first frame update
         void Start()
         {
-            m_appState = AppState.instance;
+            m_appState = State.instance;
             m_startsub = m_appState.editSession.StartEvent.Subscribe(OnStartEditSession);
             m_stopsub = m_appState.editSession.EndEvent.Subscribe(OnEndEditSession);
             m_layersub = m_appState.LayerUpdate.Event.Subscribe(onLayerUpdate);
@@ -78,7 +78,7 @@ namespace Virgis
             m_layersMap.Clear();
 
             // appState.layers are actually Layer script (Component)
-            AppState.instance.layers.ForEach(comp =>
+            State.instance.layers.ForEach(comp =>
             {
                 IVirgisLayer layer = (IVirgisLayer)comp;
                 Debug.Log($"CreateLayerPanels: layer {layer.GetMetadata().Id ?? ""}, {layer.GetMetadata().DisplayName ?? ""}");

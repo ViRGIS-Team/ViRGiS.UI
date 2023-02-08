@@ -1,7 +1,13 @@
 {
     "name": "virgis.ui",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "UniRx",
+        "project_ns",
+        "virgis.types",
+        "GeoJSON.NET",
+        "Unity.XR.Interaction.Toolkit"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,

@@ -13,6 +13,7 @@
         }
       ],
     "dependencies": {
+      "com.unity.xr.interaction.toolkit": "2.2.0"
     },
     "keywords": [
         "geometry",
