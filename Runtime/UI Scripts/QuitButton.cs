@@ -28,8 +28,8 @@ namespace Virgis {
 
         public async void OnClick() {
             Debug.Log("QuitButton.OnClick save before quit");
-            //MapInitialize mi = State.instance.map.GetComponent<MapInitialize>();
-            //await mi.Save(false);
+            IVirgisLayer mi = State.instance.map.GetComponent<IVirgisLayer>();
+            await mi.Save(false);
             Debug.Log("QuitButton.OnClick now quit");
             Application.Quit();
         }
