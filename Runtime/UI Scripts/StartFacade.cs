@@ -59,7 +59,7 @@ namespace Virgis {
         /// Action to be Taken when the Project has loaded. Normally just Hide the panels.
         /// </summary>
         /// <param name="proj"></param>
-        private void OnProjectLoad(GisProject proj) {
+        private void OnProjectLoad(GisProjectPrototype proj) {
             gameObject.SetActive(false);
         }
 

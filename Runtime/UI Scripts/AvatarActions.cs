@@ -76,20 +76,9 @@ namespace Virgis
         /// <summary>
         /// Tasks to be performed when a project is fully loaded
         /// </summary>
-        protected virtual void onProjectLoad(GisProject obj)
+        protected virtual void onProjectLoad(GisProjectPrototype obj)
         {
-            if (m_appState.project.Scale == null)
-            {
-                m_appState.project.Scale = new List<float>() { 1f, 1f, 1f, 1f };
-            };
-            m_appState.SetScale(m_appState.project.Scale[0]);
-            m_appState.currentView = 0;
-            //TODO CAMERAS
-            //transform.position = m_appState.project.Cameras[m_appState.currentView].Coordinates.Vector3();
-            while (m_appState.project.Cameras.Count < 4)
-            {
-                m_appState.project.Cameras.Add(m_appState.project.Cameras[0]);
-            }
+            // do nothing
         }
 
         /// <summary>
