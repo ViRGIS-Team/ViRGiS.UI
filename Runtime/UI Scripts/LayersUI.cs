@@ -89,8 +89,8 @@ namespace Virgis
                 LayerUIContainer containerScript = newLayerPanel.GetComponentInChildren<LayerUIContainer>();
                 containerScript.m_layersMap = m_layersMap;
                 // set the layer in the panel
-                containerScript.layer = layer;
                 panelScript.layer = layer;
+                containerScript.layer = layer;
 
                 containerScript.viewLayerToggle.isOn = layer.IsVisible();
 

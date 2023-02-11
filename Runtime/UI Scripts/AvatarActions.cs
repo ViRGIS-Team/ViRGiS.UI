@@ -5,7 +5,6 @@ using System.Collections;
 using System;
 using UnityEngine;
 using UniRx;
-using Project;
 
 namespace Virgis
 {
@@ -211,8 +210,5 @@ namespace Virgis
                 m_currentPointerHit = null;
             }
         }
-
-
     }
-
 }

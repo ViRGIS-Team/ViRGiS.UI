@@ -36,16 +36,9 @@ namespace Virgis
         public Text layerNameText;
         public Toggle viewLayerToggle;
 
-        private State m_appState;
         private IVirgisLayer m_layer;
         public Dictionary<Guid, LayerUIPanel> m_layersMap;
 
-        void Awake()
-        {
-            m_appState = State.instance;
-            if (viewLayerToggle != null)
-                viewLayerToggle.onValueChanged.AddListener(OnViewToggleValueChange);
-        }
 
         public void expand(bool thisEvent) 
         {
@@ -95,7 +88,7 @@ namespace Virgis
             if (layer.IsEditable()) panelScript.editLayerToggle.isOn = true;
             // when the Layers Menu screen is first displayed,
             // edit session could already be active
-            if (m_appState.editSession.IsActive())
+            if (State.instance.editSession.IsActive())
             {
                 // in edit session, layer can be set to edit
                 panelScript.editLayerToggle.interactable = true;
@@ -112,27 +105,17 @@ namespace Virgis
         {
             if (selected)
             {
-                IVirgisLayer oldEditableLayer = m_appState.editSession.editableLayer;
-                m_appState.editSession.editableLayer = layerPanel.layer;
+                IVirgisLayer oldEditableLayer = State.instance.editSession.editableLayer;
+                State.instance.editSession.editableLayer = layerPanel.layer;
                 if (oldEditableLayer != null && m_layersMap.ContainsKey(oldEditableLayer.GetId()))
                     m_layersMap[oldEditableLayer.GetId()].editLayerToggle.isOn = false;
             }
             else
             {
-                IVirgisLayer oldEditableLayer = m_appState.editSession.editableLayer;
-                m_appState.editSession.editableLayer = null;
+                IVirgisLayer oldEditableLayer = State.instance.editSession.editableLayer;
+                State.instance.editSession.editableLayer = null;
                 if (oldEditableLayer != null)
                     m_layersMap[oldEditableLayer.GetId()].editLayerToggle.isOn = false;
-            }
-        }
-
-        private void OnViewToggleValueChange(bool visible) {
-            if (visible) {
-                viewLayerToggle.GetComponentInChildren<Text>().color = new Color32(0, 0, 245, 255);
-                m_layer.SetVisible(true);
-            } else {
-                viewLayerToggle.GetComponentInChildren<Text>().color = new Color32(100, 100, 100, 255);
-                m_layer.SetVisible(false);
             }
         }
     }

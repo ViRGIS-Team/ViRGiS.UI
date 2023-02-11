@@ -24,6 +24,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Virgis;
 using System;
+using System.Collections.Generic;
 using UniRx;
 
 public class HudFacade : MonoBehaviour
@@ -32,26 +33,20 @@ public class HudFacade : MonoBehaviour
     public Text HudRightText;
     public Text HudCentreText;
 
-    private IDisposable startsub;
-    private IDisposable stopsub;
-    private IDisposable zoomsub;
-    private IDisposable orientsub;
+    private readonly List<IDisposable> m_Subs = new();
     
     // Start is called before the first frame update
     void Start()
     {
         State appState = State.instance;
-        startsub = appState.editSession.StartEvent.Subscribe(OnEditSessionStart);
-        stopsub = appState.editSession.EndEvent.Subscribe(OnEditSessionEnd);
-        zoomsub = appState.Zoom.Event.Subscribe(OnZoomChanged);
-        orientsub = appState.Orientation.Event.Subscribe(onOrientation);
+        m_Subs.Add(appState.editSession.StartEvent.Subscribe(OnEditSessionStart));
+        m_Subs.Add(appState.editSession.EndEvent.Subscribe(OnEditSessionEnd));
+        m_Subs.Add(appState.Zoom.Event.Subscribe(OnZoomChanged));
+        m_Subs.Add(appState.Orientation.Event.Subscribe(onOrientation));
     }
 
     private void OnDestroy() {
-        startsub.Dispose();
-        stopsub.Dispose();
-        zoomsub.Dispose();
-        orientsub.Dispose();
+        m_Subs.ForEach( sub => sub.Dispose());
     }
 
     public void onPosition(float position) {
@@ -59,6 +54,7 @@ public class HudFacade : MonoBehaviour
     }
 
     public void onOrientation(Vector3 current) {
+        if(State.instance.map == null) { return; }
         current.y = 0;
         double angle = Math.Floor(Vector3.SignedAngle(State.instance.map.transform.forward, current, State.instance.map.transform.up)/5)*5;
         if (angle < 0)

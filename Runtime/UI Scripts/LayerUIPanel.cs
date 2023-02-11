@@ -31,6 +31,7 @@ namespace Virgis {
 
     public class LayerUIPanel : MonoBehaviour {
         public Toggle editLayerToggle;
+        public Toggle viewLayerToggle;
         public Text layerNameText;
 
         private IVirgisLayer m_layer;
@@ -41,6 +42,8 @@ namespace Virgis {
                 m_editSelectedEvent = new LayerPanelEditSelectedEvent();
             if (editLayerToggle != null )
                 editLayerToggle.onValueChanged.AddListener(OnEditToggleValueChange);
+            if (viewLayerToggle != null)
+                viewLayerToggle.onValueChanged.AddListener(OnViewToggleValueChange);
 
         }
 
@@ -77,6 +80,20 @@ namespace Virgis {
                 m_editSelectedEvent.Invoke(this, true);
             } else if (!enabled && m_layer.IsEditable()) {
                 m_editSelectedEvent.Invoke(this, false);
+            }
+        }
+
+        private void OnViewToggleValueChange(bool visible)
+        {
+            if (visible)
+            {
+                layerNameText.color = new Color32(0, 0, 245, 255);
+                m_layer.SetVisible(true);
+            }
+            else
+            {
+                layerNameText.color = new Color32(100, 100, 100, 255);
+                m_layer.SetVisible(false);
             }
         }
     }
