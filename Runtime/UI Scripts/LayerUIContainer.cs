@@ -35,7 +35,6 @@ namespace Virgis
         public List<GameObject> subPanels = new List<GameObject>();
         public Text layerNameText;
         public Toggle viewLayerToggle;
-
         private IVirgisLayer m_layer;
         public Dictionary<Guid, LayerUIPanel> m_layersMap;
 
