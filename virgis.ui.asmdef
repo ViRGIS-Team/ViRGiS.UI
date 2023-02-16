@@ -6,7 +6,8 @@
         "project_ns",
         "virgis.types",
         "GeoJSON.NET",
-        "Unity.XR.Interaction.Toolkit"
+        "Unity.XR.Interaction.Toolkit",
+        "Unity.Netcode.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

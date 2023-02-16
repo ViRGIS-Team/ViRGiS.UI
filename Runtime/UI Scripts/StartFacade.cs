@@ -150,7 +150,7 @@ namespace Virgis {
                 //create the new layers
                 Debug.Log($"File selected : {@event.File}");
                 gameObject.SetActive(false);
-                if (!m_appState.map.GetComponent<IVirgisLayer>().Load(@event.File)) {
+                if (!m_appState.LoadProject(@event.File)) {
                     gameObject.SetActive(true);
                 }
             } else {

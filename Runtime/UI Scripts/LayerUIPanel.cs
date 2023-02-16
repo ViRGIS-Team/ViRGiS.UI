@@ -23,6 +23,7 @@ SOFTWARE. */
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using Unity.Netcode;
 
 namespace Virgis {
 
@@ -60,6 +61,7 @@ namespace Virgis {
                 }
                 GameObject featureShape = layer.GetFeatureShape();
                 if (featureShape != null) {
+                    featureShape.GetComponent<NetworkObject>().Spawn();
                     featureShape.transform.parent = transform;
                     featureShape.transform.localPosition = new Vector3(-60f, 0f, 0f);
                     featureShape.transform.localRotation = Quaternion.identity;
