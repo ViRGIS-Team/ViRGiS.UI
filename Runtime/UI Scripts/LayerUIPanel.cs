@@ -61,7 +61,7 @@ namespace Virgis {
                 }
                 GameObject featureShape = layer.GetFeatureShape();
                 if (featureShape != null) {
-                    featureShape.GetComponent<NetworkObject>().Spawn();
+                    DestroyImmediate(featureShape.GetComponent<NetworkObject>(), false);
                     featureShape.transform.parent = transform;
                     featureShape.transform.localPosition = new Vector3(-60f, 0f, 0f);
                     featureShape.transform.localRotation = Quaternion.identity;

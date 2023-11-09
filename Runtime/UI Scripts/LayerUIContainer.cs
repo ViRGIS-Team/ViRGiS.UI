@@ -97,7 +97,7 @@ namespace Virgis
                 // not in edit session, layer cannot be set to edit
                 panelScript.editLayerToggle.interactable = false;
             }
-            m_layersMap.Add(layer.GetId(), panelScript);
+            m_layersMap[layer.GetId()] = panelScript;
             (transform as RectTransform).ForceUpdateRectTransforms();
         }
         private void OnLayerPanelEditSelected(LayerUIPanel layerPanel, bool selected)
