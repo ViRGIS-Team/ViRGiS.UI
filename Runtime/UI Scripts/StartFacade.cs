@@ -27,7 +27,6 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
-using Project;
 
 namespace Virgis {
 
@@ -133,23 +132,13 @@ namespace Virgis {
         /// <param name="event"></param>
         protected void onFileSelected(FileListPanel @event) {
             if (!@event.isDirectory) {
-                // Kill off all of the existing layers
-                if (m_appState.layers != null)
-                    foreach (IVirgisLayer layer in m_appState.layers) {
-                        layer.Destroy();
-                    }
-                m_appState.clearLayers();
-
-                // kill off any tasks that could be generating layers at the moment
-                if (m_appState.tasks != null)
-                    foreach (Coroutine task in m_appState.tasks) {
-                        if (task != null)
-                            StopCoroutine(task);
-                    }
-
-                //create the new layers
                 Debug.Log($"File selected : {@event.File}");
                 gameObject.SetActive(false);
+
+                // Kill off all of the existing layers
+                m_appState.UnloadProject();
+
+                //create the new layers
                 if (!m_appState.LoadProject(@event.File)) {
                     gameObject.SetActive(true);
                 }
