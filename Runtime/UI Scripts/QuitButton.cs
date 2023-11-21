@@ -20,18 +20,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. */
 
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Virgis {
     public class QuitButton : MonoBehaviour {
 
-        public async void OnClick() {
-            Debug.Log("QuitButton.OnClick save before quit");
-            IVirgisLayer mi = State.instance.map.GetComponent<IVirgisLayer>();
-            await mi.Save(false);
-            Debug.Log("QuitButton.OnClick now quit");
-            Application.Quit();
+        public void OnClick() {
+            StartCoroutine(State.instance.Exit().AsIEnumerator());
         }
     }
 }
