@@ -80,7 +80,7 @@ namespace Virgis
             // appState.layers are actually Layer script (Component)
             State.instance.layers.ForEach(comp =>
             {
-                IVirgisLayer layer = (IVirgisLayer)comp;
+                VirgisLayer layer = (VirgisLayer)comp;
                 Debug.Log($"CreateLayerPanels: layer {layer.GetMetadata().Id ?? ""}, {layer.GetMetadata().DisplayName ?? ""}");
                 // create a view panel for this particular layer
                 GameObject newLayerPanel = Instantiate(layerPanelPrefab, transform);
