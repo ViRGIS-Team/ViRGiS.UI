@@ -42,25 +42,23 @@ namespace Virgis
 
         private State m_appState;
         private Dictionary<Guid, LayerUIPanel> m_layersMap;
-        private IDisposable m_startsub;
-        private IDisposable m_stopsub;
-        private IDisposable m_layersub;
+
+        private List<IDisposable> m_subs = new();
 
         // Start is called before the first frame update
         void Start()
         {
             m_appState = State.instance;
-            m_startsub = m_appState.editSession.StartEvent.Subscribe(OnStartEditSession);
-            m_stopsub = m_appState.editSession.EndEvent.Subscribe(OnEndEditSession);
-            m_layersub = m_appState.LayerUpdate.Event.Subscribe(onLayerUpdate);
+            m_subs.Add(m_appState.editSession.StartEvent.Subscribe(OnStartEditSession));
+            m_subs.Add(m_appState.editSession.EndEvent.Subscribe(OnEndEditSession));
+            m_subs.Add(m_appState.LayerUpdate.AddEvents.Subscribe(onLayerUpdate));
+            m_subs.Add(m_appState.LayerUpdate.DelEvents.Subscribe(onLayerUpdate));
             m_layersMap = new Dictionary<Guid, LayerUIPanel>();
             CreateLayerPanels();
         }
 
         private void OnDestroy() {
-            m_startsub.Dispose();
-            m_stopsub.Dispose();
-            m_layersub.Dispose();
+            m_subs.ForEach(sub => sub.Dispose());
         }
 
         public void OnShowMenuButtonClicked()
