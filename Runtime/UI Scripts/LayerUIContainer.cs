@@ -87,7 +87,7 @@ namespace Virgis
             if (layer.IsEditable()) panelScript.editLayerToggle.isOn = true;
             // when the Layers Menu screen is first displayed,
             // edit session could already be active
-            if (State.instance.editSession.IsActive())
+            if (State.instance.EditSession.IsActive())
             {
                 // in edit session, layer can be set to edit
                 panelScript.editLayerToggle.interactable = true;
@@ -104,15 +104,15 @@ namespace Virgis
         {
             if (selected)
             {
-                IVirgisLayer oldEditableLayer = State.instance.editSession.editableLayer;
-                State.instance.editSession.editableLayer = layerPanel.layer;
+                IVirgisLayer oldEditableLayer = State.instance.EditSession.editableLayer;
+                State.instance.EditSession.editableLayer = layerPanel.layer;
                 if (oldEditableLayer != null && m_layersMap.ContainsKey(oldEditableLayer.GetId()))
                     m_layersMap[oldEditableLayer.GetId()].editLayerToggle.isOn = false;
             }
             else
             {
-                IVirgisLayer oldEditableLayer = State.instance.editSession.editableLayer;
-                State.instance.editSession.editableLayer = null;
+                IVirgisLayer oldEditableLayer = State.instance.EditSession.editableLayer;
+                State.instance.EditSession.editableLayer = null;
                 if (oldEditableLayer != null)
                     m_layersMap[oldEditableLayer.GetId()].editLayerToggle.isOn = false;
             }

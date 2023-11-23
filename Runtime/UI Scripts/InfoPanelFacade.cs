@@ -49,7 +49,7 @@ namespace Virgis {
 
         private void UpdateText( string text) {
             if (m_active) {
-                gameObject.SetActive(text != "" || (m_appState.ButtonStatus.isLhTrigger && !m_appState.editSession.IsActive()));
+                gameObject.SetActive(text != "" || (m_appState.ButtonStatus.isLhTrigger && !m_appState.EditSession.IsActive()));
                 m_lastText = text;
                 if (!m_appState.ButtonStatus.isLhTrigger || text != "")
                     textBox.text = text;
@@ -57,7 +57,7 @@ namespace Virgis {
         }
 
         private void ButtonChange(ButtonStatus status) {
-            if (m_active && !status.activate && status.SelectionType == SelectionType.INFO && ! m_appState.editSession.IsActive()) {
+            if (m_active && !status.activate && status.SelectionType == SelectionType.INFO && ! m_appState.EditSession.IsActive()) {
                 gameObject.SetActive(false);
                 textBox.text = m_lastText;
             }

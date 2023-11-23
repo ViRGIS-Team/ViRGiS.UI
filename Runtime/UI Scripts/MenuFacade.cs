@@ -51,7 +51,7 @@ namespace Virgis {
         // Start is called before the first frame update
         void Start() {
             _appState = State.instance;
-            if (_appState.editSession.IsActive()) {
+            if (_appState.EditSession.IsActive()) {
                 startEditButton.interactable = false;
                 stopSaveEditButton.interactable = true;
                 stopDiscardEditButton.interactable = true;
@@ -61,8 +61,8 @@ namespace Virgis {
                 stopDiscardEditButton.interactable = false;
             }
 
-            startsub = _appState.editSession.StartEvent.Subscribe(OnEditSessionStart);
-            stopsub = _appState.editSession.EndEvent.Subscribe(OnEditSessionEnd);
+            startsub = _appState.EditSession.StartEvent.Subscribe(OnEditSessionStart);
+            stopsub = _appState.EditSession.EndEvent.Subscribe(OnEditSessionEnd);
         }
 
         private void OnDestroy() {

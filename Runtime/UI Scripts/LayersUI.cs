@@ -49,8 +49,8 @@ namespace Virgis
         void Start()
         {
             m_appState = State.instance;
-            m_subs.Add(m_appState.editSession.StartEvent.Subscribe(OnStartEditSession));
-            m_subs.Add(m_appState.editSession.EndEvent.Subscribe(OnEndEditSession));
+            m_subs.Add(m_appState.EditSession.StartEvent.Subscribe(OnStartEditSession));
+            m_subs.Add(m_appState.EditSession.EndEvent.Subscribe(OnEndEditSession));
             m_subs.Add(m_appState.LayerUpdate.AddEvents.Subscribe(onLayerUpdate));
             m_subs.Add(m_appState.LayerUpdate.DelEvents.Subscribe(onLayerUpdate));
             m_layersMap = new Dictionary<Guid, LayerUIPanel>();
@@ -76,10 +76,8 @@ namespace Virgis
             m_layersMap.Clear();
 
             // appState.layers are actually Layer script (Component)
-            State.instance.layers.ForEach(comp =>
+            State.instance.Layers.ForEach(layer =>
             {
-                VirgisLayer layer = (VirgisLayer)comp;
-                Debug.Log($"CreateLayerPanels: layer {layer.GetMetadata().Id ?? ""}, {layer.GetMetadata().DisplayName ?? ""}");
                 // create a view panel for this particular layer
                 GameObject newLayerPanel = Instantiate(layerPanelPrefab, transform);
                 // obtain the panel script

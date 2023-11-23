@@ -49,12 +49,12 @@ namespace Virgis {
                 if (snapAnchorToggle.isOn) {
                     snapAnchorToggle.isOn = false;
                 }
-                m_appState.editSession.mode = EditSession.EditMode.SnapGrid;
-                print($"Edit mode = {m_appState.editSession.mode}");
+                m_appState.EditSession.mode = EditSession.EditMode.SnapGrid;
+                print($"Edit mode = {m_appState.EditSession.mode}");
             } else {
                 if (!snapAnchorToggle.isOn) {
-                    m_appState.editSession.mode = EditSession.EditMode.None;
-                    print($"Edit mode = {m_appState.editSession.mode}");
+                    m_appState.EditSession.mode = EditSession.EditMode.None;
+                    print($"Edit mode = {m_appState.EditSession.mode}");
                 }
             }
         }
@@ -65,12 +65,12 @@ namespace Virgis {
                 if (snapGridToggle.isOn) {
                     snapGridToggle.isOn = false;
                 }
-                m_appState.editSession.mode = EditSession.EditMode.SnapAnchor;
-                print($"Edit mode = {m_appState.editSession.mode}");
+                m_appState.EditSession.mode = EditSession.EditMode.SnapAnchor;
+                print($"Edit mode = {m_appState.EditSession.mode}");
             } else {
                 if (!snapGridToggle.isOn) {
-                    m_appState.editSession.mode = EditSession.EditMode.None;
-                    print($"Edit mode = {m_appState.editSession.mode}");
+                    m_appState.EditSession.mode = EditSession.EditMode.None;
+                    print($"Edit mode = {m_appState.EditSession.mode}");
                 }
             }
         }
