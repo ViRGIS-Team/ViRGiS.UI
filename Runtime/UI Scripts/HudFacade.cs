@@ -54,9 +54,9 @@ public class HudFacade : MonoBehaviour
     }
 
     public void onOrientation(Vector3 current) {
-        if(State.instance.map == null) { return; }
+        if(State.instance.Map == null) { return; }
         current.y = 0;
-        double angle = Math.Floor(Vector3.SignedAngle(State.instance.map.transform.forward, current, State.instance.map.transform.up)/5)*5;
+        double angle = Math.Floor(Vector3.SignedAngle(State.instance.Map.transform.forward, current, State.instance.Map.transform.up)/5)*5;
         if (angle < 0)
             angle = 360 + angle;
         HudCentreText.text = angle.ToString();
