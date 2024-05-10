@@ -118,9 +118,12 @@ namespace Virgis
 
         public void Scale(float scale)
         {
-            Vector3 here = m_appState.Map.transform.InverseTransformPoint(transform.position);
-            m_appState.SetScale(scale);
-            transform.position = m_appState.Map.transform.TransformPoint(here);
+            if (m_appState.Map != null)
+            {
+                Vector3 here = m_appState.Map.transform.InverseTransformPoint(transform.position);
+                m_appState.SetScale(scale);
+                transform.position = m_appState.Map.transform.TransformPoint(here);
+            }
         }
 
         public void moveTo(Vector3 to)
