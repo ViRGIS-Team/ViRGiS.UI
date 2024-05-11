@@ -41,8 +41,8 @@ namespace Virgis
         public GameObject menus;
 
         private State m_appState;
-        private Dictionary<Guid, LayerUIPanel> m_layersMap;
-
+        private Dictionary<Guid, LayerUIPanel> m_layersMap = new();
+        private Dictionary<Guid, LayerUIContainer> m_containersMap= new();
         private List<IDisposable> m_subs = new();
 
         // Start is called before the first frame update
@@ -52,9 +52,13 @@ namespace Virgis
             m_subs.Add(m_appState.EditSession.StartEvent.Subscribe(OnStartEditSession));
             m_subs.Add(m_appState.EditSession.EndEvent.Subscribe(OnEndEditSession));
             m_subs.Add(m_appState.LayerUpdate.AddEvents.Subscribe(onLayerUpdate));
-            m_subs.Add(m_appState.LayerUpdate.DelEvents.Subscribe(onLayerUpdate));
+            m_subs.Add(m_appState.LayerUpdate.DelEvents.Subscribe(onLayerDowndate));
             m_layersMap = new Dictionary<Guid, LayerUIPanel>();
-            CreateLayerPanels();
+
+            foreach (VirgisLayer layer in State.instance.Layers)
+            {
+                CreateLayerPanel(layer);
+            }
         }
 
         private void OnDestroy() {
@@ -67,37 +71,32 @@ namespace Virgis
             menus.SetActive(true);
         }
 
-        public void CreateLayerPanels()
+        public void CreateLayerPanel(VirgisLayer layer)
         {
-            // Delete any existing panel
-            foreach (var panel in m_layersMap) {
-                Destroy(panel.Value.gameObject);
-            }
-            m_layersMap.Clear();
-
-            // appState.layers are actually Layer script (Component)
-            State.instance.Layers.ForEach(layer =>
-            {
-                // create a view panel for this particular layer
-                GameObject newLayerPanel = Instantiate(layerPanelPrefab, transform);
-                // obtain the panel script
-                LayerUIPanel panelScript = newLayerPanel.GetComponentInChildren<LayerUIPanel>();
-                LayerUIContainer containerScript = newLayerPanel.GetComponentInChildren<LayerUIContainer>();
-                containerScript.m_layersMap = m_layersMap;
-                // set the layer in the panel
-                panelScript.layer = layer;
-                containerScript.layer = layer;
-
-                containerScript.viewLayerToggle.isOn = layer.IsVisible();
-
-                m_layersMap.Add(Guid.NewGuid(), panelScript);
-                newLayerPanel.transform.SetParent(layersScrollView.transform, false);
-            });
+            // create a view panel for this particular layer
+            GameObject newLayerPanel = Instantiate(layerPanelPrefab, transform);
+            // obtain the panel script
+            LayerUIPanel panelScript = newLayerPanel.GetComponentInChildren<LayerUIPanel>();
+            LayerUIContainer containerScript = newLayerPanel.GetComponentInChildren<LayerUIContainer>();
+            m_containersMap.Add(layer.GetId(), containerScript);
+            containerScript.m_layersMap = m_layersMap;
+            // set the layer in the panel
+            panelScript.layer = layer;
+            containerScript.layer = layer;
+            containerScript.viewLayerToggle.isOn = layer.IsVisible();
+            newLayerPanel.transform.SetParent(layersScrollView.transform, false);
             LayoutRebuilder.MarkLayoutForRebuild(transform as RectTransform);
         }
 
-        private void onLayerUpdate(IVirgisLayer layer) {
-            CreateLayerPanels();
+        private void onLayerUpdate(VirgisLayer layer) {
+            CreateLayerPanel(layer);
+        }
+
+        private void onLayerDowndate(VirgisLayer layer)
+        {
+            m_containersMap.Remove(layer.GetId() , out LayerUIContainer container);
+            Destroy(container.gameObject);
+            LayoutRebuilder.MarkLayoutForRebuild(transform as RectTransform);
         }
 
         private void OnStartEditSession(bool ignore)
