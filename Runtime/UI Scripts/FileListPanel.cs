@@ -32,12 +32,14 @@ namespace Virgis {
         public Text text;
         public Image icon;
         public bool isDirectory = false;
+        public bool isServer = false;
 
         [System.Serializable]
         public class FileSelectedEvent : UnityEvent<FileListPanel> {
         }
 
         private string m_file;
+        private VirgisServerDetails m_server;
         private FileSelectedEvent m_fileSelected = new FileSelectedEvent();
 
 
@@ -58,6 +60,19 @@ namespace Virgis {
                 File = value;
                 icon.gameObject.SetActive(true);
                 isDirectory = true;
+            }
+        }
+
+        public VirgisServerDetails Server { 
+            set {
+                m_server = value;
+                icon.gameObject.SetActive(false);
+                isServer = true;
+
+                // name to be displayed is the Server name : Model Name, 
+
+                string displayName = value.ServerName + " : " + value.ModelName;
+                text.text = displayName;
             }
         }
 

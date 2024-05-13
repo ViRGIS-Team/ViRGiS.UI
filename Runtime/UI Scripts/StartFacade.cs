@@ -27,6 +27,9 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
+using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
+
 
 namespace Virgis {
 
@@ -34,9 +37,9 @@ namespace Virgis {
 
         public GameObject fileListPanelPrefab;
         public GameObject fileScrollView;
-        public string projectDirectory;
         public string searchPattern;
-        
+
+        protected string m_projectDirectory;
         protected State m_appState;
         protected List<IDisposable> m_subs = new List<IDisposable>();
 
@@ -46,6 +49,7 @@ namespace Virgis {
         protected void Start() {
             m_appState = State.instance;
             m_subs.Add(m_appState.Project.Event.Subscribe(OnProjectLoad));
+            //m_subs.Add(State.instance.ServerEvent.Subscribe(OnServerRegistered));
             if (m_appState.Project.Get() != null)
                 OnProjectLoad(m_appState.Project.Get());
         }
@@ -75,7 +79,7 @@ namespace Virgis {
                 Destroy(fileScrollView.transform.GetChild(i).gameObject);
             }
 
-            if (Path.GetDirectoryName(projectDirectory) != null) {
+            if (Path.GetDirectoryName(m_projectDirectory) != null) {
                 newFilePanel = Instantiate(fileListPanelPrefab, fileScrollView.transform);
 
                 // obtain the panel script
@@ -88,7 +92,7 @@ namespace Virgis {
             }
 
             if (m_searchOptions == SearchOption.TopDirectoryOnly) {
-                foreach (string directory in Directory.GetDirectories(projectDirectory)) {
+                foreach (string directory in Directory.GetDirectories(m_projectDirectory)) {
 
                     if (! Regex.Match(Path.GetFileName(directory), @"^\..*").Success) {
 
@@ -107,7 +111,7 @@ namespace Virgis {
             }
 
             // get the file list
-            foreach (string file in Directory.GetFiles(projectDirectory, "*", m_searchOptions)) {
+            foreach (string file in Directory.GetFiles(m_projectDirectory, "*", m_searchOptions)) {
 
                 if (!Regex.Match(Path.GetFileName(file), @"^\..*").Success && Regex.Match(Path.GetFileName(file), searchPattern).Success) {
 
@@ -131,26 +135,53 @@ namespace Virgis {
         /// </summary>
         /// <param name="event"></param>
         protected void onFileSelected(FileListPanel @event) {
-            if (!@event.isDirectory) {
-                Debug.Log($"File selected : {@event.File}");
-                gameObject.SetActive(false);
-
-                // Kill off all of the existing layers
-                m_appState.UnloadProject();
-
-                //create the new layers
-                if (!m_appState.LoadProject(@event.File)) {
-                    gameObject.SetActive(true);
+            if (@event.isDirectory)
+            {
+                // If directory - expand Directory
+                if (@event.File == "..")
+                {
+                    m_projectDirectory = Path.GetDirectoryName(m_projectDirectory);
                 }
-            } else {
-                if (@event.File == "..") {
-                    projectDirectory = Path.GetDirectoryName(projectDirectory);
-                } else {
-                    projectDirectory = @event.File;
+                else
+                {
+                    m_projectDirectory = @event.File;
                 }
                 m_appState.SetConfig("CurrentFolder", @event.File);
                 CreateFilePanels();
+                return;
             }
-        } 
+            if (@event.isServer)
+            {
+                
+                // if Server - connect to the server
+                NetworkManager.Singleton.StartClient();
+                return;
+            }
+            //otherwise - open the file
+            Debug.Log($"File selected : {@event.File}");
+            gameObject.SetActive(false);
+
+            // Kill off all of the existing layers
+            m_appState.UnloadProject();
+
+            //create the new layers
+            if (!m_appState.LoadProject(@event.File)) {
+                gameObject.SetActive(true);
+            }
+        }
+
+        protected void OnServerRegistered(bool flag)
+        {
+            if (!flag) return;
+            NetworkManager nm = NetworkManager.Singleton;
+            UnityTransport unityTransport = nm.GetComponent<UnityTransport>();
+            State appState = State.instance;
+            if (!nm.IsConnectedClient)
+            {
+                unityTransport.ConnectionData.Address = appState.Servers[0].Endpoint.Address.ToString();
+                unityTransport.ConnectionData.Port = (ushort)appState.Servers[0].Endpoint.Port;
+                nm.StartClient();
+            }
+        }
     }
 }
