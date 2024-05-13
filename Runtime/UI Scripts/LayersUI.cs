@@ -95,7 +95,7 @@ namespace Virgis
         private void onLayerDowndate(VirgisLayer layer)
         {
             m_containersMap.Remove(layer.GetId() , out LayerUIContainer container);
-            Destroy(container.gameObject);
+            if (container != null) Destroy(container.gameObject);
             LayoutRebuilder.MarkLayoutForRebuild(transform as RectTransform);
         }
 
