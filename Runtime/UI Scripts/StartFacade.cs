@@ -46,7 +46,7 @@ namespace Virgis {
         protected SearchOption m_searchOptions = SearchOption.AllDirectories;
 
         // Start is called before the first frame update
-        protected void Start() {
+        protected virtual void Start() {
             m_appState = State.instance;
             m_subs.Add(m_appState.Project.Event.Subscribe(OnProjectLoad));
             m_subs.Add(State.instance.ServerEvent.Subscribe(OnServerRegistered));
