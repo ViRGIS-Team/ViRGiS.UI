@@ -64,6 +64,7 @@ namespace Virgis {
         }
 
         public VirgisServerDetails Server { 
+            get { return m_server; }
             set {
                 m_server = value;
                 icon.gameObject.SetActive(false);

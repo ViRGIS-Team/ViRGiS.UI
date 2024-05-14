@@ -70,7 +70,7 @@ namespace Virgis {
             stopsub.Dispose();
         }
 
-        public void Visible(bool thisEvent) {
+        public virtual void Visible(bool thisEvent) {
             bool isActive = gameObject.activeSelf;
             if (isActive) {
                 gameObject.SetActive(false);
@@ -97,8 +97,11 @@ namespace Virgis {
         }
 
         public void onFileClicked() {
-            startMenu.SetActive(! startMenu.activeSelf);
+            startMenu.SetActive(!startMenu.activeSelf);
+            startMenu.GetComponent<StartFacade>().CreateFilePanels();
         }
+
+
 
         // Changes the state of menu buttons when edit session starts.
         // 1) Disable Start Edit button
