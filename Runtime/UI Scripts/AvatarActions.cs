@@ -121,7 +121,7 @@ namespace Virgis
             if (m_appState.Map != null)
             {
                 Vector3 here = m_appState.Map.transform.InverseTransformPoint(transform.position);
-                m_appState.SetScale(scale);
+                m_appState.SetZoom(scale);
                 transform.position = m_appState.Map.transform.TransformPoint(here);
             }
         }
@@ -187,7 +187,8 @@ namespace Virgis
             {
                 layer = m_currentPointerHit?.GetComponentInParent<IVirgisLayer>();
             }
-            return layer?.IsEditable() ?? false;
+            if (layer == null || layer !=State.instance.EditSession.editableLayer) return false;
+            return layer.IsWriteable;
         }
 
         protected void MoveCamera(Vector3 force)

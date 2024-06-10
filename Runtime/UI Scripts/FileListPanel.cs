@@ -50,7 +50,7 @@ namespace Virgis {
 
                 // name to be displayed is the filename part without extension, 
 
-                string displayName = Path.GetFileName(m_file);
+                string displayName = Path.GetFileNameWithoutExtension(m_file);
                 text.text = displayName;
             }
         }

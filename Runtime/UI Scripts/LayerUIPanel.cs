@@ -23,7 +23,11 @@ SOFTWARE. */
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using UniRx;
+using System;
 using Unity.Netcode;
+
 
 namespace Virgis {
 
@@ -34,39 +38,97 @@ namespace Virgis {
         public Toggle editLayerToggle;
         public Toggle viewLayerToggle;
         public Text layerNameText;
+        public GameObject DefaultSpheroid;
+        public GameObject DefaultCuboid;
+        public GameObject DefaultCylinder;
+        public bool IsEditPanel;
+        public bool ShowFeature;
 
         private IVirgisLayer m_layer;
         private LayerPanelEditSelectedEvent m_editSelectedEvent;
+        private List<IDisposable> m_subs = new();
+        private GameObject feature;
 
-        void Awake() {
-            if (m_editSelectedEvent == null)
-                m_editSelectedEvent = new LayerPanelEditSelectedEvent();
-            if (editLayerToggle != null )
-                editLayerToggle.onValueChanged.AddListener(OnEditToggleValueChange);
-            if (viewLayerToggle != null)
-                viewLayerToggle.onValueChanged.AddListener(OnViewToggleValueChange);
+        void Start() {
+            if (IsEditPanel)
+            {
+                if (m_editSelectedEvent == null)
+                    m_editSelectedEvent = new LayerPanelEditSelectedEvent();
+                if (editLayerToggle != null)
+                    editLayerToggle.onValueChanged.AddListener(OnEditToggleValueChange);
+                if (viewLayerToggle != null)
+                    viewLayerToggle.onValueChanged.AddListener(OnViewToggleValueChange);
+            }
+            m_subs.Add(State.instance.EditSession.ChangeLayerEvent.Subscribe(OnEditLayerChanged));
+        }
 
+        private void OnDestroy()
+        {
+            if (IsEditPanel)
+            {
+                editLayerToggle?.onValueChanged.RemoveAllListeners();
+                m_editSelectedEvent.RemoveAllListeners();
+                Destroy(feature);
+                (m_layer as VirgisLayer).m_FeatureShape.OnValueChanged -= OnFeatureShape;
+            }
+            m_subs.ForEach(sub => sub.Dispose());
+            (m_layer as VirgisLayer).m_DefaultCol.OnValueChanged -= UpdateMaterial;
         }
 
         public IVirgisLayer layer {
             get => m_layer;
-            set {
+            set
+            {
                 m_layer = value;
-                if (layerNameText != null) {
-                    if (m_layer.sourceName == null || layer.sourceName == "") {
+                if (layerNameText != null)
+                {
+                    if (m_layer.sourceName == null || layer.sourceName == "")
+                    {
                         layerNameText.text = m_layer.featureType.ToString();
-                    } else {
+                    }
+                    else
+                    {
                         layerNameText.text = m_layer.sourceName;
                     }
                 }
-                GameObject featureShape = layer.GetFeatureShape();
-                if (featureShape != null) {
-                    DestroyImmediate(featureShape.GetComponent<NetworkObject>(), false);
-                    featureShape.transform.parent = transform;
-                    featureShape.transform.localPosition = new Vector3(-60f, 0f, 0f);
-                    featureShape.transform.localRotation = Quaternion.identity;
-                    featureShape.transform.localScale = new Vector3(20f,20f,0.1f);
+                if (ShowFeature)
+                {
+                    if (m_layer.GetFeatureShape() != Shapes.None)
+                    {
+                        OnFeatureShape(Shapes.None, m_layer.GetFeatureShape());
+                    }
+                    else
+                    {
+                        (m_layer as VirgisLayer).m_FeatureShape.OnValueChanged += OnFeatureShape;
+                    }
                 }
+            }
+        }
+
+        private void OnFeatureShape(Shapes peviousValue, Shapes featureShape)
+        {
+            if (featureShape != Shapes.None)
+            {
+                switch (featureShape)
+                {
+                    case Shapes.Spheroid:
+                        feature = Instantiate(DefaultSpheroid, transform, false);
+                        break;
+                    case Shapes.Cuboid:
+                        feature = Instantiate(DefaultCuboid, transform, false);
+                        break;
+                    case Shapes.Cylinder:
+                        feature = Instantiate(DefaultCylinder, transform, false);
+                        break;
+                    default:
+                        throw new NotImplementedException("Unknown Feature Shape");
+                };
+                NetworkVariable<SerializableMaterialHash> col = (m_layer as VirgisLayer).m_DefaultCol;
+                col.OnValueChanged += UpdateMaterial;
+                UpdateMaterial(new SerializableMaterialHash(), col.Value);
+                feature.transform.localPosition = new Vector3(100f, 0f, 0f);
+                feature.transform.localRotation = Quaternion.identity;
+                feature.transform.localScale = new Vector3(20f, 20f, 0.1f);
             }
         }
 
@@ -77,12 +139,7 @@ namespace Virgis {
         }
 
         private void OnEditToggleValueChange(bool enabled) {
-            if (enabled && !m_layer.IsEditable()) {
-                // if the layer is already editable, don't invoke
-                m_editSelectedEvent.Invoke(this, true);
-            } else if (!enabled && m_layer.IsEditable()) {
-                m_editSelectedEvent.Invoke(this, false);
-            }
+            m_editSelectedEvent.Invoke(this, enabled);
         }
 
         private void OnViewToggleValueChange(bool visible)
@@ -97,6 +154,24 @@ namespace Virgis {
                 layerNameText.color = new Color32(100, 100, 100, 255);
                 m_layer.SetVisible(false);
             }
+        }
+
+        private void OnEditLayerChanged(IVirgisLayer layer)
+        {
+            if (editLayerToggle == null) return;
+            if (editLayerToggle.isOn && layer == m_layer)
+            {
+                editLayerToggle.isOn = false;
+            }
+        }
+
+        public void UpdateMaterial(SerializableMaterialHash previousValue, SerializableMaterialHash newValue)
+        {
+            if (newValue.Equals(previousValue)) return;
+            Material material = default;
+            if (feature.TryGetComponent<MeshRenderer>(out MeshRenderer mr)) material = mr.material;
+            material?.SetColor("_BaseColor", Color.red);
+            if (newValue.properties == null) return;
         }
     }
 }

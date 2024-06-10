@@ -171,7 +171,7 @@ namespace Virgis {
             }
             if (@event.isServer)
             {
-                
+
                 // if Server - connect to the server
                 ConnectClient(@event.Server);
                 return;
@@ -181,10 +181,12 @@ namespace Virgis {
             gameObject.SetActive(false);
 
             // Kill off all of the existing layers
-            m_appState.UnloadProject();
+            m_appState.UnloadProject( () => m_loadProject(@event.File));
+        }
 
+        public void m_loadProject(string file) { 
             //create the new layers
-            if (!m_appState.LoadProject(@event.File)) {
+            if (!m_appState.LoadProject(file)) {
                 gameObject.SetActive(true);
             }
         }

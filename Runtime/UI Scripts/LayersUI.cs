@@ -103,7 +103,7 @@ namespace Virgis
         {
             foreach (LayerUIPanel panel in m_layersMap.Values)
             {
-                if (panel.layer.isWriteable && panel.editLayerToggle != null)
+                if (panel.layer.IsEditable && panel.editLayerToggle != null)
                     panel.editLayerToggle.interactable = true;
             }
         }
