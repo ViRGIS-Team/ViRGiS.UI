@@ -50,20 +50,21 @@ namespace Virgis {
         private GameObject feature;
 
         void Start() {
+            if (viewLayerToggle != null)
+                viewLayerToggle.onValueChanged.AddListener(OnViewToggleValueChange);
             if (IsEditPanel)
             {
                 if (m_editSelectedEvent == null)
                     m_editSelectedEvent = new LayerPanelEditSelectedEvent();
                 if (editLayerToggle != null)
                     editLayerToggle.onValueChanged.AddListener(OnEditToggleValueChange);
-                if (viewLayerToggle != null)
-                    viewLayerToggle.onValueChanged.AddListener(OnViewToggleValueChange);
             }
             m_subs.Add(State.instance.EditSession.ChangeLayerEvent.Subscribe(OnEditLayerChanged));
         }
 
         private void OnDestroy()
         {
+            viewLayerToggle?.onValueChanged.RemoveListener(OnViewToggleValueChange);
             if (IsEditPanel)
             {
                 editLayerToggle?.onValueChanged.RemoveAllListeners();

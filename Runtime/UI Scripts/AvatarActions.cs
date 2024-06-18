@@ -48,6 +48,7 @@ namespace Virgis
             m_subs.Add(m_appState.ButtonStatus.Event.Subscribe(unSelect));
             m_subs.Add(m_appState.Project.Event.Subscribe(onProjectLoad));
             m_subs.Add(m_appState.LayerUpdate.AddEvents.Subscribe(LayerAdded));
+            m_subs.Add(m_appState.Zoom.Event.Subscribe(m_Zoom));
             StartCoroutine(Orient());
             if (m_appState.Project.Get() != null)
                 onProjectLoad(m_appState.Project.Get());
@@ -107,23 +108,22 @@ namespace Virgis
             }
         }
 
-        public void Zoom(float zoom)
+        public void ZoomRelative(float factor)
         {
-            if (zoom != 0)
+            if (factor != 0)
             {
-
-                Scale(State.instance.Zoom.Get() * (1 - zoom));
+                Zoom(State.instance.Zoom.Get() * (1 - factor));
             }
         }
 
-        public void Scale(float scale)
+        public void Zoom(float zoom)
         {
-            if (m_appState.Map != null)
-            {
-                Vector3 here = m_appState.Map.transform.InverseTransformPoint(transform.position);
-                m_appState.SetZoom(scale);
-                transform.position = m_appState.Map.transform.TransformPoint(here);
-            }
+            m_appState.SetZoom(zoom);
+        }
+
+        private void m_Zoom(float zoom) {
+            if (zoom == 0) return;
+            transform.localScale = Vector3.one * zoom;
         }
 
         public void moveTo(Vector3 to)
