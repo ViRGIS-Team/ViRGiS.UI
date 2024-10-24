@@ -76,61 +76,71 @@ namespace Virgis {
             GameObject newFilePanel;
 
             ClearPanels();
-
-            if (Path.GetDirectoryName(m_projectDirectory) != null)
+            try
             {
-                newFilePanel = Instantiate(fileListPanelPrefab, fileScrollView.transform);
-
-                // obtain the panel script
-                FileListPanel panelScript = newFilePanel.GetComponentInChildren<FileListPanel>();
-
-                // set the filein the panel
-                panelScript.Directory = "..";
-
-                panelScript.addFileSelectedListerner(onFileSelected);
-
-                if (m_searchOptions == SearchOption.TopDirectoryOnly)
-                {
-                    foreach (string directory in Directory.GetDirectories(m_projectDirectory))
-                    {
-
-                        if (!Regex.Match(Path.GetFileName(directory), @"^\..*").Success)
-                        {
-
-                            //Create this filelist panel
-                            newFilePanel = Instantiate(fileListPanelPrefab, fileScrollView.transform);
-
-                            // obtain the panel script
-                            panelScript = newFilePanel.GetComponentInChildren<FileListPanel>();
-
-                            // set the filein the panel
-                            panelScript.Directory = directory;
-
-                            panelScript.addFileSelectedListerner(onFileSelected);
-                        }
-                    }
+                if (m_projectDirectory == null) {
+                    m_projectDirectory = Path.GetPathRoot(
+                        Environment.GetFolderPath(
+                            Environment.SpecialFolder.MyDocuments)
+                        );
                 }
+                Path.GetDirectoryName(m_projectDirectory);
+            } catch (Exception e) {
+                m_projectDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            }
 
-                // get the file list
-                foreach (string file in Directory.GetFiles(m_projectDirectory, "*", m_searchOptions))
+
+            newFilePanel = Instantiate(fileListPanelPrefab, fileScrollView.transform);
+
+            // obtain the panel script
+            FileListPanel panelScript = newFilePanel.GetComponentInChildren<FileListPanel>();
+
+            // set the filein the panel
+            panelScript.Directory = "..";
+
+            panelScript.addFileSelectedListerner(onFileSelected);
+
+            if (m_searchOptions == SearchOption.TopDirectoryOnly)
+            {
+                foreach (string directory in Directory.GetDirectories(m_projectDirectory))
                 {
 
-                    if (!Regex.Match(Path.GetFileName(file), @"^\..*").Success && Regex.Match(Path.GetFileName(file), searchPattern).Success)
+                    if (!Regex.Match(Path.GetFileName(directory), @"^\..*").Success)
                     {
 
                         //Create this filelist panel
-                        newFilePanel = (GameObject)Instantiate(fileListPanelPrefab, fileScrollView.transform);
+                        newFilePanel = Instantiate(fileListPanelPrefab, fileScrollView.transform);
 
                         // obtain the panel script
                         panelScript = newFilePanel.GetComponentInChildren<FileListPanel>();
 
                         // set the filein the panel
-                        panelScript.File = file;
+                        panelScript.Directory = directory;
 
                         panelScript.addFileSelectedListerner(onFileSelected);
                     }
-                };
+                }
             }
+
+            // get the file list
+            foreach (string file in Directory.GetFiles(m_projectDirectory, "*", m_searchOptions))
+            {
+
+                if (!Regex.Match(Path.GetFileName(file), @"^\..*").Success && Regex.Match(Path.GetFileName(file), searchPattern).Success)
+                {
+
+                    //Create this filelist panel
+                    newFilePanel = (GameObject)Instantiate(fileListPanelPrefab, fileScrollView.transform);
+
+                    // obtain the panel script
+                    panelScript = newFilePanel.GetComponentInChildren<FileListPanel>();
+
+                    // set the filein the panel
+                    panelScript.File = file;
+
+                    panelScript.addFileSelectedListerner(onFileSelected);
+                }
+            };
             gameObject.GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 1f;
         }
 
