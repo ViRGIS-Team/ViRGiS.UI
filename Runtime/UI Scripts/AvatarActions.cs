@@ -48,11 +48,9 @@ namespace Virgis
             m_subs.Add(m_appState.ButtonStatus.Event.Subscribe(unSelect));
             m_subs.Add(m_appState.Project.Event.Subscribe(onProjectLoad));
             m_subs.Add(m_appState.LayerUpdate.AddEvents.Subscribe(LayerAdded));
-            m_subs.Add(m_appState.Zoom.Event.Subscribe(m_Zoom));
             StartCoroutine(Orient());
-            if (m_appState.Project.Get() != null)
-                onProjectLoad(m_appState.Project.Get());
             m_subs.Add(m_appState.ConfigEvent.Subscribe(onConfigLoaded));
+            m_subs.Add(m_appState.MapScale.Event.Subscribe(m_Scale));
         }
 
         public void Update()
@@ -76,7 +74,7 @@ namespace Virgis
         /// <summary>
         /// Tasks to be performed when a project is fully loaded
         /// </summary>
-        protected virtual void onProjectLoad(GisProjectPrototype obj)
+        protected virtual void onProjectLoad(ProjectEventType thisEvent)
         {
             // do nothing
         }
@@ -108,20 +106,20 @@ namespace Virgis
             }
         }
 
-        public void ZoomRelative(float factor)
+        public void ScaleRelative(float factor)
         {
             if (factor != 0)
             {
-                Zoom(State.instance.Zoom.Get() * (1 - factor));
+                Scale(State.instance.Zoom.Get() * (1 - factor));
             }
         }
 
-        public void Zoom(float zoom)
+        public void Scale(float zoom)
         {
-            m_appState.SetZoom(zoom);
+            m_appState.SetScale(zoom);
         }
 
-        private void m_Zoom(float zoom) {
+        private void m_Scale(float zoom) {
             if (zoom == 0) return;
             transform.localScale = Vector3.one * zoom;
         }

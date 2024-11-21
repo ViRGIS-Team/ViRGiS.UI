@@ -27,13 +27,12 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
-using Unity.Netcode;
-using Unity.Netcode.Transports.UTP;
 
 
 namespace Virgis {
 
-    public class StartFacade : MonoBehaviour {
+    public class StartFacade : MonoBehaviour
+    {
 
         public GameObject fileListPanelPrefab;
         public GameObject fileScrollView;
@@ -46,15 +45,16 @@ namespace Virgis {
         protected SearchOption m_searchOptions = SearchOption.AllDirectories;
 
         // Start is called before the first frame update
-        protected virtual void Start() {
+        protected virtual void Start()
+        {
             m_appState = State.instance;
             m_subs.Add(m_appState.Project.Event.Subscribe(OnProjectLoad));
             m_subs.Add(State.instance.ServerEvent.Subscribe(OnServerRegistered));
-            if (m_appState.Project.Get() != null)
-                OnProjectLoad(m_appState.Project.Get());
+            m_subs.Add(State.instance.Client.Event.Subscribe(OnClientConnect));
         }
 
-        private void OnDestroy() {
+        private void OnDestroy()
+        {
             m_subs.ForEach(sub => sub.Dispose());
         }
 
@@ -62,7 +62,8 @@ namespace Virgis {
         /// Action to be Taken when the Project has loaded. Normally just Hide the panels.
         /// </summary>
         /// <param name="proj"></param>
-        private void OnProjectLoad(GisProjectPrototype proj) {
+        private void OnProjectLoad(ProjectEventType thisEvent)
+        {
             gameObject.SetActive(false);
         }
 
@@ -72,20 +73,24 @@ namespace Virgis {
         /// Note - this will expect projectDirectory and searchPattern to be set.
         /// This will not set the GameObject as Visible. You have to do that
         /// </summary>
-        public void CreateFilePanels() {
+        public void CreateFilePanels()
+        {
             GameObject newFilePanel;
 
             ClearPanels();
             try
             {
-                if (m_projectDirectory == null) {
+                if (m_projectDirectory == null)
+                {
                     m_projectDirectory = Path.GetPathRoot(
                         Environment.GetFolderPath(
                             Environment.SpecialFolder.MyDocuments)
                         );
                 }
                 Path.GetDirectoryName(m_projectDirectory);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 m_projectDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             }
 
@@ -163,7 +168,8 @@ namespace Virgis {
         /// Actions that are taken when the user clicks on an item
         /// </summary>
         /// <param name="event"></param>
-        protected void onFileSelected(FileListPanel @event) {
+        protected void onFileSelected(FileListPanel @event)
+        {
             if (@event.isDirectory)
             {
                 // If directory - expand Directory
@@ -183,7 +189,7 @@ namespace Virgis {
             {
 
                 // if Server - connect to the server
-                ConnectClient(@event.Server);
+                m_appState.ConnectClient(@event.Server);
                 return;
             }
             //otherwise - open the file
@@ -191,12 +197,14 @@ namespace Virgis {
             gameObject.SetActive(false);
 
             // Kill off all of the existing layers
-            m_appState.UnloadProject( () => m_loadProject(@event.File));
+            m_appState.UnloadProject(() => m_loadProject(@event.File));
         }
 
-        public void m_loadProject(string file) { 
+        public void m_loadProject(string file)
+        {
             //create the new layers
-            if (!m_appState.LoadProject(file)) {
+            if (!m_appState.LoadProject(file))
+            {
                 gameObject.SetActive(true);
             }
         }
@@ -217,18 +225,18 @@ namespace Virgis {
             gameObject.GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 1f;
         }
 
-        public virtual void ConnectClient(VirgisServerDetails details)
+        protected void OnClientConnect(ClientEventType eventType)
         {
-            gameObject.SetActive(false);
-            NetworkManager nm = NetworkManager.Singleton;
-            UnityTransport unityTransport = nm.GetComponent<UnityTransport>();
-            if (!nm.IsConnectedClient)
+            switch (eventType)
             {
-                unityTransport.ConnectionData.Address = details.Endpoint.Address.ToString();
-                unityTransport.ConnectionData.Port = (ushort)details.Endpoint.Port;
-                if (!nm.StartClient()) {
+                case ClientEventType.Started:
+                    gameObject.SetActive(false);
+                    break;
+                case ClientEventType.Complete:
+                    break;
+                case ClientEventType.Failed:
                     gameObject.SetActive(true);
-                }
+                    break;
             }
         }
     }
