@@ -49,8 +49,6 @@ namespace Virgis
         void Start()
         {
             m_appState = State.instance;
-            m_subs.Add(m_appState.EditSession.StartEvent.Subscribe(OnStartEditSession));
-            m_subs.Add(m_appState.EditSession.EndEvent.Subscribe(OnEndEditSession));
             m_subs.Add(m_appState.LayerUpdate.AddEvents.Subscribe(onLayerUpdate));
             m_subs.Add(m_appState.LayerUpdate.DelEvents.Subscribe(onLayerDowndate));
             m_layersMap = new Dictionary<Guid, LayerUIPanel>();
@@ -97,24 +95,6 @@ namespace Virgis
             m_containersMap.Remove(layer.GetId() , out LayerUIContainer container);
             if (container != null) Destroy(container.gameObject);
             LayoutRebuilder.MarkLayoutForRebuild(transform as RectTransform);
-        }
-
-        private void OnStartEditSession(bool ignore)
-        {
-            foreach (LayerUIPanel panel in m_layersMap.Values)
-            {
-                if (panel.layer.IsEditable && panel.editLayerToggle != null)
-                    panel.editLayerToggle.interactable = true;
-            }
-        }
-
-        private void OnEndEditSession(bool saved)
-        {
-            foreach (LayerUIPanel panel in m_layersMap.Values)
-            {
-                if (panel.editLayerToggle != null)
-                    panel.editLayerToggle.interactable = false;
-            }
         }
     }
 }

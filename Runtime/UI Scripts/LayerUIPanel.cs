@@ -38,6 +38,7 @@ namespace Virgis {
         public Toggle editLayerToggle;
         public Toggle viewLayerToggle;
         public Text layerNameText;
+        public Text editText;
         public GameObject DefaultSpheroid;
         public GameObject DefaultCuboid;
         public GameObject DefaultCylinder;
@@ -61,6 +62,15 @@ namespace Virgis {
                     editLayerToggle.onValueChanged.AddListener(OnEditToggleValueChange);
             }
             m_subs.Add(State.instance.EditSession.ChangeLayerEvent.Subscribe(OnEditLayerChanged));
+            if (IsEditPanel)
+            {
+                m_subs.Add(State.instance.EditSession.StartEvent.Subscribe(OnStartEditSession));
+                m_subs.Add(State.instance.EditSession.EndEvent.Subscribe(OnEndEditSession));
+                if (State.instance.EditSession.IsActive())
+                {
+                    OnStartEditSession(true);
+                }
+            }
         }
 
         private void OnDestroy()
@@ -177,6 +187,25 @@ namespace Virgis {
             if (feature.TryGetComponent<MeshRenderer>(out MeshRenderer mr)) material = mr.material;
             material?.SetColor("_BaseColor", newValue.Color);
             if (newValue.properties == null) return;
+        }
+
+        private void OnStartEditSession(bool ignore)
+        {
+            if (layer.IsEditable && layer.IsWriteable)
+            {
+                editLayerToggle.interactable = true;
+            } else
+            {
+                if (! layer.IsEditable)
+                {
+                    editText.text = "Checked Out";
+                }
+            }
+        }
+
+        private void OnEndEditSession(bool saved)
+        {
+            editLayerToggle.interactable = false;
         }
     }
 }
