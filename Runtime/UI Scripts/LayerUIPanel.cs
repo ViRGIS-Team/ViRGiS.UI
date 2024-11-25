@@ -48,6 +48,7 @@ namespace Virgis {
         private LayerPanelEditSelectedEvent m_editSelectedEvent;
         private List<IDisposable> m_subs = new();
         private GameObject feature;
+        private bool b_SelfChange;
 
         void Start() {
             if (viewLayerToggle != null)
@@ -125,7 +126,7 @@ namespace Virgis {
                         throw new NotImplementedException("Unknown Feature Shape");
                 };
                 NetworkVariable<SerializableMaterialHash> col = (m_layer as VirgisLayer).m_DefaultCol;
-                col.OnValueChanged += UpdateMaterial;
+                //col.OnValueChanged += UpdateMaterial;
                 UpdateMaterial(new SerializableMaterialHash(), col.Value);
                 feature.transform.localPosition = new Vector3(100f, 0f, 0f);
                 feature.transform.localRotation = Quaternion.identity;
@@ -140,7 +141,8 @@ namespace Virgis {
         }
 
         private void OnEditToggleValueChange(bool enabled) {
-            m_editSelectedEvent.Invoke(this, enabled);
+            if (! b_SelfChange)
+                m_editSelectedEvent.Invoke(this, enabled);
         }
 
         private void OnViewToggleValueChange(bool visible)
@@ -157,12 +159,14 @@ namespace Virgis {
             }
         }
 
-        private void OnEditLayerChanged(IVirgisLayer layer)
+        private void OnEditLayerChanged((IVirgisLayer,IVirgisLayer) args)
         {
             if (editLayerToggle == null) return;
-            if (editLayerToggle.isOn && layer == m_layer)
+            if (editLayerToggle.isOn && args.Item1 == m_layer)
             {
+                b_SelfChange = true;
                 editLayerToggle.isOn = false;
+                b_SelfChange = false;
             }
         }
 
@@ -171,7 +175,7 @@ namespace Virgis {
             if (newValue.Equals(previousValue)) return;
             Material material = default;
             if (feature.TryGetComponent<MeshRenderer>(out MeshRenderer mr)) material = mr.material;
-            material?.SetColor("_BaseColor", Color.red);
+            material?.SetColor("_BaseColor", newValue.Color);
             if (newValue.properties == null) return;
         }
     }
