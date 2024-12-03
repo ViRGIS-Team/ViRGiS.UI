@@ -91,6 +91,7 @@ namespace Virgis {
             }
             catch (Exception e)
             {
+                _ = e;
                 m_projectDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             }
 

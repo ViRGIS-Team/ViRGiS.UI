@@ -24,7 +24,6 @@ namespace Virgis
         protected Transform m_currentPointerHit; // current marker selected by pointer
         protected Transform m_currentSelected; // current marker in selected state
 
-        protected Vector3? m_from; // caches the last position indicated by the user to which to move the selected component
         protected State m_appState;
         private Rigidbody m_thisRigidbody;
         protected bool m_axisEdit = false; // Whether we are in AxisEdit mode
@@ -124,17 +123,15 @@ namespace Virgis
             transform.localScale = Vector3.one * zoom;
         }
 
-        public void moveTo(Vector3 to)
+        public void moveTo(MoveArgs args)
         {
             if (!m_axisEdit)
             {
-                MoveArgs args = new MoveArgs();
-                args.translate = to - (m_from  ?? to);
                 m_currentSelected?.SendMessage("MoveTo", args, SendMessageOptions.DontRequireReceiver);
             }
         }
 
-        protected virtual void select(ButtonStatus button)
+        protected virtual void select(ButtonStatus button) 
         {
             if (
                 button.activate &&
@@ -145,6 +142,7 @@ namespace Virgis
             {
                 m_editSelected = true;
                 m_currentSelected = m_currentPointerHit;
+                m_selectedDistance = State.instance.lastHit.distance;
                 m_currentSelected.SendMessage("Selected", m_appState.ButtonStatus.SelectionType, SendMessageOptions.DontRequireReceiver);
             }
             else if (button.activate &&
@@ -159,10 +157,11 @@ namespace Virgis
             if (!button.activate)
             {
                 m_editSelected = false;
-                m_currentSelected?.SendMessage("UnSelected", m_appState.ButtonStatus.SelectionType, SendMessageOptions.DontRequireReceiver);
+                if (m_currentSelected != null)
+                    m_currentSelected?.SendMessage("UnSelected", m_appState.ButtonStatus.SelectionType, SendMessageOptions.DontRequireReceiver);
                 m_currentSelected = null;
+                m_selectedDistance = 0;
                 m_lightEdit = false;
-                m_from = null;
             }
         }
 
@@ -170,7 +169,8 @@ namespace Virgis
         {
             if (m_axisEdit)
             {
-                m_currentSelected?.SendMessage("MoveAxis", args, SendMessageOptions.DontRequireReceiver);
+                if (m_currentSelected != null)
+                    m_currentSelected?.SendMessage("MoveAxis", args, SendMessageOptions.DontRequireReceiver);
             }
         }
 
