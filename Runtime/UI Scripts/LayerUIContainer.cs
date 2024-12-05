@@ -36,7 +36,7 @@ namespace Virgis
         public Text layerNameText;
         public Toggle viewLayerToggle;
         private IVirgisLayer m_layer;
-        public Dictionary<Guid, LayerUIPanel> m_layersMap;
+        public Dictionary<ulong, LayerUIPanel> m_layersMap;
 
 
         public void expand(bool thisEvent) 

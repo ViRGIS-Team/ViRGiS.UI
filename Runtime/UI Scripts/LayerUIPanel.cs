@@ -81,10 +81,10 @@ namespace Virgis {
                 editLayerToggle?.onValueChanged.RemoveAllListeners();
                 m_editSelectedEvent.RemoveAllListeners();
                 Destroy(feature);
-                (m_layer as VirgisLayer).m_FeatureShape.OnValueChanged -= OnFeatureShape;
+                (m_layer as VirgisLayer).FeatureShape.OnValueChanged -= OnFeatureShape;
             }
             m_subs.ForEach(sub => sub.Dispose());
-            (m_layer as VirgisLayer).m_DefaultCol.OnValueChanged -= UpdateMaterial;
+            (m_layer as VirgisLayer).DefaultCol.OnValueChanged -= UpdateMaterial;
         }
 
         public IVirgisLayer layer {
@@ -111,7 +111,7 @@ namespace Virgis {
                     }
                     else
                     {
-                        (m_layer as VirgisLayer).m_FeatureShape.OnValueChanged += OnFeatureShape;
+                        (m_layer as VirgisLayer).FeatureShape.OnValueChanged += OnFeatureShape;
                     }
                 }
             }
@@ -135,7 +135,7 @@ namespace Virgis {
                     default:
                         throw new NotImplementedException("Unknown Feature Shape");
                 };
-                NetworkVariable<SerializableMaterialHash> col = (m_layer as VirgisLayer).m_DefaultCol;
+                NetworkVariable<SerializableMaterialHash> col = (m_layer as VirgisLayer).DefaultCol;
                 //col.OnValueChanged += UpdateMaterial;
                 UpdateMaterial(new SerializableMaterialHash(), col.Value);
                 feature.transform.localPosition = new Vector3(100f, 0f, 0f);

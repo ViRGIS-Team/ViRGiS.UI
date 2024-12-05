@@ -109,7 +109,7 @@ namespace Virgis
         {
             if (factor != 0)
             {
-                Scale(State.instance.Zoom.Get() * (1 - factor));
+                Scale(State.instance.MapScale.Get() * (1 - factor));
             }
         }
 
@@ -207,7 +207,7 @@ namespace Virgis
         {
             if (m_appState.InEditSession() && m_currentSelected != null && LayerIsEditable())
             {
-                m_currentSelected.SendMessage("Delete", SendMessageOptions.DontRequireReceiver);
+                m_currentSelected.SendMessage("RemoveVertex", m_currentSelected, SendMessageOptions.DontRequireReceiver);
                 m_currentSelected = null;
                 m_currentPointerHit = null;
             }

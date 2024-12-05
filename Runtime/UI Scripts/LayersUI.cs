@@ -41,17 +41,17 @@ namespace Virgis
         public GameObject menus;
 
         private State m_appState;
-        private Dictionary<Guid, LayerUIPanel> m_layersMap = new();
-        private Dictionary<Guid, LayerUIContainer> m_containersMap= new();
+        private Dictionary<ulong, LayerUIPanel> m_layersMap = new();
+        private Dictionary<ulong, LayerUIContainer> m_containersMap= new();
         private List<IDisposable> m_subs = new();
 
         // Start is called before the first frame update
-        void Start()
+        public void Start()
         {
             m_appState = State.instance;
             m_subs.Add(m_appState.LayerUpdate.AddEvents.Subscribe(onLayerUpdate));
             m_subs.Add(m_appState.LayerUpdate.DelEvents.Subscribe(onLayerDowndate));
-            m_layersMap = new Dictionary<Guid, LayerUIPanel>();
+            m_layersMap = new Dictionary<ulong, LayerUIPanel>();
 
             foreach (VirgisLayer layer in State.instance.Layers)
             {
@@ -59,7 +59,7 @@ namespace Virgis
             }
         }
 
-        private void OnDestroy() {
+        public void OnDestroy() {
             m_subs.ForEach(sub => sub.Dispose());
         }
 
