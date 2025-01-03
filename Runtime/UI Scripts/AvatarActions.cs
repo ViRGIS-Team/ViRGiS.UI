@@ -31,7 +31,8 @@ namespace Virgis
         protected bool m_addVertexState; // current state of the button to add vertex
         protected bool m_delVertexState; // current state of the button to remove vertex
         protected bool m_lightEdit = false; // are we currently editing the lights
-        protected List<IDisposable> m_subs = new List<IDisposable>();
+        protected List<IDisposable> m_subs = new ();
+        protected List<Coroutine> m_cos = new();
 
         private List<SelectionType> SELECT_SELECTION_TYPES = new List<SelectionType>() { SelectionType.SELECT, SelectionType.SELECTALL, SelectionType.MOVEAXIS };
 
@@ -47,7 +48,7 @@ namespace Virgis
             m_subs.Add(m_appState.ButtonStatus.Event.Subscribe(unSelect));
             m_subs.Add(m_appState.Project.Event.Subscribe(onProjectLoad));
             m_subs.Add(m_appState.LayerUpdate.AddEvents.Subscribe(LayerAdded));
-            StartCoroutine(Orient());
+            m_cos.Add(StartCoroutine(Orient()));
             m_subs.Add(m_appState.ConfigEvent.Subscribe(onConfigLoaded));
             m_subs.Add(m_appState.MapScale.Event.Subscribe(m_Scale));
         }
@@ -57,8 +58,9 @@ namespace Virgis
             //do nothing
         }
 
-        public void OnDestroy() {
+        public virtual void OnDestroy() {
             m_subs.ForEach(sub => sub.Dispose());
+            m_cos.ForEach(co => StopCoroutine(co));
         }
 
         IEnumerator Orient()
@@ -125,9 +127,9 @@ namespace Virgis
 
         public void moveTo(MoveArgs args)
         {
-            if (!m_axisEdit)
+            if (!m_axisEdit && m_currentSelected != null)
             {
-                m_currentSelected?.SendMessage("MoveTo", args, SendMessageOptions.DontRequireReceiver);
+                m_currentSelected.SendMessage("MoveTo", args, SendMessageOptions.DontRequireReceiver);
             }
         }
 
