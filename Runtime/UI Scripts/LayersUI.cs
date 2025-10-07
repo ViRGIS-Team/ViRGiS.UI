@@ -41,19 +41,17 @@ namespace Virgis
         public GameObject menus;
 
         private State m_appState;
-        private Dictionary<Guid, LayerUIPanel> m_layersMap = new();
-        private Dictionary<Guid, LayerUIContainer> m_containersMap= new();
+        private Dictionary<ulong, LayerUIPanel> m_layersMap = new();
+        private Dictionary<ulong, LayerUIContainer> m_containersMap= new();
         private List<IDisposable> m_subs = new();
 
         // Start is called before the first frame update
-        void Start()
+        public void Start()
         {
             m_appState = State.instance;
-            m_subs.Add(m_appState.EditSession.StartEvent.Subscribe(OnStartEditSession));
-            m_subs.Add(m_appState.EditSession.EndEvent.Subscribe(OnEndEditSession));
             m_subs.Add(m_appState.LayerUpdate.AddEvents.Subscribe(onLayerUpdate));
             m_subs.Add(m_appState.LayerUpdate.DelEvents.Subscribe(onLayerDowndate));
-            m_layersMap = new Dictionary<Guid, LayerUIPanel>();
+            m_layersMap = new Dictionary<ulong, LayerUIPanel>();
 
             foreach (VirgisLayer layer in State.instance.Layers)
             {
@@ -61,7 +59,7 @@ namespace Virgis
             }
         }
 
-        private void OnDestroy() {
+        public void OnDestroy() {
             m_subs.ForEach(sub => sub.Dispose());
         }
 
@@ -97,24 +95,6 @@ namespace Virgis
             m_containersMap.Remove(layer.GetId() , out LayerUIContainer container);
             if (container != null) Destroy(container.gameObject);
             LayoutRebuilder.MarkLayoutForRebuild(transform as RectTransform);
-        }
-
-        private void OnStartEditSession(bool ignore)
-        {
-            foreach (LayerUIPanel panel in m_layersMap.Values)
-            {
-                if (panel.layer.isWriteable && panel.editLayerToggle != null)
-                    panel.editLayerToggle.interactable = true;
-            }
-        }
-
-        private void OnEndEditSession(bool saved)
-        {
-            foreach (LayerUIPanel panel in m_layersMap.Values)
-            {
-                if (panel.editLayerToggle != null)
-                    panel.editLayerToggle.interactable = false;
-            }
         }
     }
 }

@@ -41,7 +41,7 @@ public class HudFacade : MonoBehaviour
         State appState = State.instance;
         m_Subs.Add(appState.EditSession.StartEvent.Subscribe(OnEditSessionStart));
         m_Subs.Add(appState.EditSession.EndEvent.Subscribe(OnEditSessionEnd));
-        m_Subs.Add(appState.Zoom.Event.Subscribe(OnZoomChanged));
+        m_Subs.Add(appState.MapScale.Event.Subscribe(OnZoomChanged));
         m_Subs.Add(appState.Orientation.Event.Subscribe(onOrientation));
     }
 
@@ -54,9 +54,8 @@ public class HudFacade : MonoBehaviour
     }
 
     public void onOrientation(Vector3 current) {
-        if(State.instance.Map == null) { return; }
         current.y = 0;
-        double angle = Math.Floor(Vector3.SignedAngle(State.instance.Map.transform.forward, current, State.instance.Map.transform.up)/5)*5;
+        double angle = Math.Floor(Vector3.SignedAngle(Vector3.forward, current, Vector3.up)/5)*5;
         if (angle < 0)
             angle = 360 + angle;
         HudCentreText.text = angle.ToString();

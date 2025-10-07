@@ -100,7 +100,7 @@ namespace Virgis
 
         void FindOrCreateXRUIInputModule()
         {
-            var eventSystem = FindObjectOfType<EventSystem>();
+            var eventSystem = FindFirstObjectByType<EventSystem>();
             if (eventSystem == null)
                 eventSystem = new GameObject("EventSystem", typeof(EventSystem)).GetComponent<EventSystem>();
             else

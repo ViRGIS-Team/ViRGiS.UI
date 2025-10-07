@@ -24,7 +24,6 @@ namespace Virgis
         protected Transform m_currentPointerHit; // current marker selected by pointer
         protected Transform m_currentSelected; // current marker in selected state
 
-        protected Vector3? m_from; // caches the last position indicated by the user to which to move the selected component
         protected State m_appState;
         private Rigidbody m_thisRigidbody;
         protected bool m_axisEdit = false; // Whether we are in AxisEdit mode
@@ -32,7 +31,8 @@ namespace Virgis
         protected bool m_addVertexState; // current state of the button to add vertex
         protected bool m_delVertexState; // current state of the button to remove vertex
         protected bool m_lightEdit = false; // are we currently editing the lights
-        protected List<IDisposable> m_subs = new List<IDisposable>();
+        protected List<IDisposable> m_subs = new ();
+        protected List<Coroutine> m_cos = new();
 
         private List<SelectionType> SELECT_SELECTION_TYPES = new List<SelectionType>() { SelectionType.SELECT, SelectionType.SELECTALL, SelectionType.MOVEAXIS };
 
@@ -48,10 +48,9 @@ namespace Virgis
             m_subs.Add(m_appState.ButtonStatus.Event.Subscribe(unSelect));
             m_subs.Add(m_appState.Project.Event.Subscribe(onProjectLoad));
             m_subs.Add(m_appState.LayerUpdate.AddEvents.Subscribe(LayerAdded));
-            StartCoroutine(Orient());
-            if (m_appState.Project.Get() != null)
-                onProjectLoad(m_appState.Project.Get());
+            m_cos.Add(StartCoroutine(Orient()));
             m_subs.Add(m_appState.ConfigEvent.Subscribe(onConfigLoaded));
+            m_subs.Add(m_appState.MapScale.Event.Subscribe(m_Scale));
         }
 
         public void Update()
@@ -59,8 +58,9 @@ namespace Virgis
             //do nothing
         }
 
-        public void OnDestroy() {
+        public virtual void OnDestroy() {
             m_subs.ForEach(sub => sub.Dispose());
+            m_cos.ForEach(co => StopCoroutine(co));
         }
 
         IEnumerator Orient()
@@ -75,7 +75,7 @@ namespace Virgis
         /// <summary>
         /// Tasks to be performed when a project is fully loaded
         /// </summary>
-        protected virtual void onProjectLoad(GisProjectPrototype obj)
+        protected virtual void onProjectLoad(ProjectEventType thisEvent)
         {
             // do nothing
         }
@@ -107,36 +107,33 @@ namespace Virgis
             }
         }
 
-        public void Zoom(float zoom)
+        public void ScaleRelative(float factor)
         {
-            if (zoom != 0)
+            if (factor != 0)
             {
-
-                Scale(State.instance.Zoom.Get() * (1 - zoom));
+                Scale(State.instance.MapScale.Get() * (1 - factor));
             }
         }
 
-        public void Scale(float scale)
+        public void Scale(float zoom)
         {
-            if (m_appState.Map != null)
+            m_appState.SetScale(zoom);
+        }
+
+        private void m_Scale(float zoom) {
+            if (zoom == 0) return;
+            transform.localScale = Vector3.one * zoom;
+        }
+
+        public void moveTo(MoveArgs args)
+        {
+            if (!m_axisEdit && m_currentSelected != null)
             {
-                Vector3 here = m_appState.Map.transform.InverseTransformPoint(transform.position);
-                m_appState.SetScale(scale);
-                transform.position = m_appState.Map.transform.TransformPoint(here);
+                m_currentSelected.SendMessage("MoveTo", args, SendMessageOptions.DontRequireReceiver);
             }
         }
 
-        public void moveTo(Vector3 to)
-        {
-            if (!m_axisEdit)
-            {
-                MoveArgs args = new MoveArgs();
-                args.translate = to - (m_from  ?? to);
-                m_currentSelected?.SendMessage("MoveTo", args, SendMessageOptions.DontRequireReceiver);
-            }
-        }
-
-        protected virtual void select(ButtonStatus button)
+        protected virtual void select(ButtonStatus button) 
         {
             if (
                 button.activate &&
@@ -147,6 +144,7 @@ namespace Virgis
             {
                 m_editSelected = true;
                 m_currentSelected = m_currentPointerHit;
+                m_selectedDistance = State.instance.lastHit.distance;
                 m_currentSelected.SendMessage("Selected", m_appState.ButtonStatus.SelectionType, SendMessageOptions.DontRequireReceiver);
             }
             else if (button.activate &&
@@ -161,10 +159,11 @@ namespace Virgis
             if (!button.activate)
             {
                 m_editSelected = false;
-                m_currentSelected?.SendMessage("UnSelected", m_appState.ButtonStatus.SelectionType, SendMessageOptions.DontRequireReceiver);
+                if (m_currentSelected != null)
+                    m_currentSelected?.SendMessage("UnSelected", m_appState.ButtonStatus.SelectionType, SendMessageOptions.DontRequireReceiver);
                 m_currentSelected = null;
+                m_selectedDistance = 0;
                 m_lightEdit = false;
-                m_from = null;
             }
         }
 
@@ -172,7 +171,8 @@ namespace Virgis
         {
             if (m_axisEdit)
             {
-                m_currentSelected?.SendMessage("MoveAxis", args, SendMessageOptions.DontRequireReceiver);
+                if (m_currentSelected != null)
+                    m_currentSelected?.SendMessage("MoveAxis", args, SendMessageOptions.DontRequireReceiver);
             }
         }
 
@@ -187,7 +187,8 @@ namespace Virgis
             {
                 layer = m_currentPointerHit?.GetComponentInParent<IVirgisLayer>();
             }
-            return layer?.IsEditable() ?? false;
+            if (layer == null || layer !=State.instance.EditSession.editableLayer) return false;
+            return layer.IsWriteable;
         }
 
         protected void MoveCamera(Vector3 force)
@@ -208,7 +209,7 @@ namespace Virgis
         {
             if (m_appState.InEditSession() && m_currentSelected != null && LayerIsEditable())
             {
-                m_currentSelected.SendMessage("Delete", SendMessageOptions.DontRequireReceiver);
+                m_currentSelected.SendMessage("RemoveVertex", m_currentSelected, SendMessageOptions.DontRequireReceiver);
                 m_currentSelected = null;
                 m_currentPointerHit = null;
             }
