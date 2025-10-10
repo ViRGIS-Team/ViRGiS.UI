@@ -198,7 +198,7 @@ namespace Virgis {
             {
                 if (! layer.IsEditable)
                 {
-                    editText.text = "Checked Out";
+                    if (editText != null ) editText.text = "Checked Out";
                 }
             }
         }
