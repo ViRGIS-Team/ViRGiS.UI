@@ -1,9 +1,9 @@
 {
     "name": "com.virgis.ui",
-    "version": "3.0.0-a.1",
+    "version": "3.0.0-a.2",
     "displayName": "ViRGiS UI",
     "description": "ViRGiS is a GIS platform for VR. See https://www.vrgis.org for more details.",
-    "unity": "2020.3",
+    "unity": "6000.0",
     "scopedRegistries": [
         {
           "name": "package.openupm.com",
@@ -13,10 +13,10 @@
         }
       ],
     "dependencies": {
-      "com.unity.xr.interaction.toolkit": "3.0.6",
+      "com.unity.xr.interaction.toolkit": "3.5.1",
       "com.unity.ugui": "2.0.0",
-      "com.unity.visualeffectgraph": "10.3.2",
-      "com.unity.xr.management": "4.2.1"
+      "com.unity.visualeffectgraph": "17.4.0",
+      "com.unity.xr.management": "4.5.4"
     },
     "keywords": [
         "geometry",
