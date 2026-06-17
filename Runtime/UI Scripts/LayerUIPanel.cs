@@ -24,7 +24,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using UniRx;
+using R3;
 using System;
 using Unity.Netcode;
 

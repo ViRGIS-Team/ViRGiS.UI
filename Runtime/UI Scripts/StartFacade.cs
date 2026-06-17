@@ -26,7 +26,7 @@ using System;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
-using UniRx;
+using R3;
 
 
 namespace Virgis {

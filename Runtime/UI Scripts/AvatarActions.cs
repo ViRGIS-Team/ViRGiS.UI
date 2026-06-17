@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System;
 using UnityEngine;
-using UniRx;
+using R3;
 
 namespace Virgis
 {

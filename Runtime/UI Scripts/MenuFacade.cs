@@ -23,7 +23,7 @@ SOFTWARE. */
 using UnityEngine;
 using UnityEngine.UI;
 using System;
-using UniRx;
+using R3;
 
 namespace Virgis {
 

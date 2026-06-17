@@ -25,7 +25,7 @@ using UnityEngine.UI;
 using Virgis;
 using System;
 using System.Collections.Generic;
-using UniRx;
+using R3;
 
 public class HudFacade : MonoBehaviour
 {
