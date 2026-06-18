@@ -34,10 +34,9 @@ namespace Virgis {
     [System.Serializable]
     public class LayerPanelEditSelectedEvent : UnityEvent<LayerUIPanel, bool> {}
 
-    public class LayerUIPanel : MonoBehaviour {
+    public class LayerUIPanel : Panel<string> {
         public Toggle editLayerToggle;
         public Toggle viewLayerToggle;
-        public Text layerNameText;
         public Text editText;
         public GameObject DefaultSpheroid;
         public GameObject DefaultCuboid;
@@ -92,15 +91,15 @@ namespace Virgis {
             set
             {
                 m_layer = value;
-                if (layerNameText != null)
+                if (panelNameText != null)
                 {
                     if (m_layer.sourceName == null || layer.sourceName == "")
                     {
-                        layerNameText.text = m_layer.featureType.ToString();
+                        panelNameText.text = m_layer.featureType.ToString();
                     }
                     else
                     {
-                        layerNameText.text = m_layer.sourceName;
+                        panelNameText.text = m_layer.sourceName;
                     }
                 }
                 if (ShowFeature)
@@ -159,12 +158,12 @@ namespace Virgis {
         {
             if (visible)
             {
-                layerNameText.color = new Color32(0, 0, 245, 255);
+                panelNameText.color = new Color32(0, 0, 245, 255);
                 m_layer.SetVisible(true);
             }
             else
             {
-                layerNameText.color = new Color32(100, 100, 100, 255);
+                panelNameText.color = new Color32(100, 100, 100, 255);
                 m_layer.SetVisible(false);
             }
         }

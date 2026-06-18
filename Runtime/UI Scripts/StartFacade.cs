@@ -36,6 +36,7 @@ namespace Virgis {
 
         public GameObject fileListPanelPrefab;
         public GameObject fileScrollView;
+        public GameObject serverListPanelPrefab;
         public string searchPattern;
 
         protected string m_projectDirectory;
@@ -43,6 +44,7 @@ namespace Virgis {
         protected List<IDisposable> m_subs = new List<IDisposable>();
 
         protected SearchOption m_searchOptions = SearchOption.AllDirectories;
+        
 
         // Start is called before the first frame update
         protected virtual void Start()
@@ -87,7 +89,6 @@ namespace Virgis {
                             Environment.SpecialFolder.MyDocuments)
                         );
                 }
-                Path.GetDirectoryName(m_projectDirectory);
             }
             catch (Exception e)
             {
@@ -104,7 +105,7 @@ namespace Virgis {
             // set the filein the panel
             panelScript.Directory = "..";
 
-            panelScript.addFileSelectedListerner(onFileSelected);
+            panelScript.AddListener(OnFileSelected);
 
             if (m_searchOptions == SearchOption.TopDirectoryOnly)
             {
@@ -123,7 +124,7 @@ namespace Virgis {
                         // set the filein the panel
                         panelScript.Directory = directory;
 
-                        panelScript.addFileSelectedListerner(onFileSelected);
+                        panelScript.AddListener(OnFileSelected);
                     }
                 }
             }
@@ -144,7 +145,7 @@ namespace Virgis {
                     // set the filein the panel
                     panelScript.File = file;
 
-                    panelScript.addFileSelectedListerner(onFileSelected);
+                    panelScript.AddListener(OnFileSelected);
                 }
             };
             gameObject.GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 1f;
@@ -169,36 +170,36 @@ namespace Virgis {
         /// Actions that are taken when the user clicks on an item
         /// </summary>
         /// <param name="event"></param>
-        protected void onFileSelected(FileListPanel @event)
+        protected void OnFileSelected(VirgisServerDetails @event)
         {
-            if (@event.isDirectory)
+            if (@event.IsDirectory)
             {
                 // If directory - expand Directory
-                if (@event.File == "..")
+                if (@event.ServerName == "..")
                 {
                     m_projectDirectory = Path.GetDirectoryName(m_projectDirectory);
                 }
                 else
                 {
-                    m_projectDirectory = @event.File;
+                    m_projectDirectory = @event.ServerName;
                 }
-                m_appState.SetConfig("CurrentFolder", @event.File);
+                m_appState.SetConfig("CurrentFolder", @event.ServerName);
                 CreateFilePanels();
                 return;
             }
-            if (@event.isServer)
+            if (@event.IsServer)
             {
 
                 // if Server - connect to the server
-                m_appState.ConnectClient(@event.Server);
+                m_appState.ConnectClient(@event);
                 return;
             }
             //otherwise - open the file
-            Debug.Log($"File selected : {@event.File}");
+            Debug.Log($"File selected : {@event.ServerName}");
             gameObject.SetActive(false);
 
             // Kill off all of the existing layers
-            m_appState.UnloadProject(() => m_loadProject(@event.File));
+            m_appState.UnloadProject(() => m_loadProject(@event.ServerName));
         }
 
         public void m_loadProject(string file)
@@ -214,15 +215,22 @@ namespace Virgis {
         {
             if (details.Endpoint == null) return;
             //Create this filelist panel
-            GameObject newFilePanel = Instantiate(fileListPanelPrefab, fileScrollView.transform);
+            GameObject newServerPanel = Instantiate(serverListPanelPrefab, fileScrollView.transform);
 
-            // obtain the panel script
-            FileListPanel panelScript = newFilePanel.GetComponentInChildren<FileListPanel>();
+            // obtain the panel script  
+            ContainerPanel serverPanel = newServerPanel.GetComponentInChildren<ContainerPanel>();
 
-            // set the filein the panel
-            panelScript.Server = details;
-
-            panelScript.addFileSelectedListerner(onFileSelected);
+            //set the server name
+            
+            serverPanel.SetPanelText(details.ServerName);
+            serverPanel.Expand(true);
+            
+            // Add the model panel
+            
+            FileListPanel modelPanel = serverPanel.AddPanel<FileListPanel>();
+            modelPanel.Server =  details;
+            
+            modelPanel.AddListener(OnFileSelected);
             gameObject.GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 1f;
         }
 

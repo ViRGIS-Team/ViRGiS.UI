@@ -60,7 +60,11 @@ namespace Virgis
 
         public virtual void OnDestroy() {
             m_subs.ForEach(sub => sub.Dispose());
-            m_cos.ForEach(co => StopCoroutine(co));
+            m_cos.ForEach(co =>
+            {
+                if (co != null)
+                    StopCoroutine(co);
+            });
         }
 
         IEnumerator Orient()

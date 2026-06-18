@@ -27,34 +27,13 @@ using System.Collections.Generic;
 
 namespace Virgis
 {
-    public class LayerUIContainer : MonoBehaviour
+    public class LayerUIContainer : ContainerPanel
     {
-
-        public GameObject subLayerPanel;
-        public GameObject subLayerBox;
-        public List<GameObject> subPanels = new List<GameObject>();
-        public Text layerNameText;
+        
         public Toggle viewLayerToggle;
         private IVirgisLayer m_layer;
         public Dictionary<ulong, LayerUIPanel> m_layersMap;
-
-
-        public void expand(bool thisEvent) 
-        {
-            subLayerBox.SetActive(thisEvent);
-            RectTransform trans = transform as RectTransform;
-            if (thisEvent) {
-                
-                trans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 40 + 40 * subPanels.Count);
-            } else {
-                trans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 40);
-                //foreach (GameObject panel in subPanels)
-                //    Destroy(panel);
-                //subPanels.Clear();
-            }
-            trans.ForceUpdateRectTransforms();
-        }
-
+        
         public IVirgisLayer layer {
             get => m_layer;
             set {
@@ -64,7 +43,7 @@ namespace Virgis
                 string displayName = String.IsNullOrEmpty(m_layer.GetMetadata().DisplayName)
                     ? $"ID: {m_layer.GetMetadata().Id}"
                     : m_layer.GetMetadata().DisplayName;
-                layerNameText.text = displayName;
+                panelNameText.text = displayName;
                 if (layer.isContainer) {
                     foreach (IVirgisLayer subLayer in layer.subLayers) {
                         AddLayer(subLayer);
@@ -77,9 +56,7 @@ namespace Virgis
 
         public void AddLayer(IVirgisLayer layer) 
         {
-            GameObject panel = Instantiate(subLayerPanel, subLayerBox.transform);
-            subPanels.Add(panel);
-            LayerUIPanel panelScript = panel.GetComponentInChildren<LayerUIPanel>();
+            LayerUIPanel panelScript = AddPanel<LayerUIPanel>();
             // set the layer in the panel
             panelScript.layer = layer;
             // listens to panel's edit selected event

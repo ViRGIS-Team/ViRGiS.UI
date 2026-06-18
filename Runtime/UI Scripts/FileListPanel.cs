@@ -27,62 +27,65 @@ using System.IO;
 
 namespace Virgis {
 
-    public class FileListPanel : MonoBehaviour {
-
-        public Text text;
+    public class FileListPanel : Panel<VirgisServerDetails> {
+        
         public Image icon;
-        public bool isDirectory = false;
-        public bool isServer = false;
-
-        [System.Serializable]
-        public class FileSelectedEvent : UnityEvent<FileListPanel> {
-        }
-
-        private string m_file;
-        private VirgisServerDetails m_server;
-        private FileSelectedEvent m_fileSelected = new FileSelectedEvent();
-
 
         public string File {
-            get => m_file;
-            set {
-                m_file = value;
+            get => panelValue.ServerName;
+            set
+            {
+
+                panelValue = new VirgisServerDetails
+                {
+                    Endpoint = null,
+                    ServerName = value,
+                    ModelName = null,
+                    IsDirectory = false,
+                    IsServer = false,
+                    IsFile = true
+                };
 
                 // name to be displayed is the filename part without extension, 
-
-                string displayName = Path.GetFileNameWithoutExtension(m_file);
-                text.text = displayName;
+                icon.gameObject.SetActive(false);
+                panelNameText.text = Path.GetFileNameWithoutExtension(value);
             }
         }
 
         public string Directory {
+            get => panelValue.ServerName;
             set {
-                File = value;
+                
+                panelValue = new VirgisServerDetails
+                {
+                    Endpoint = null,
+                    ServerName = value,
+                    ModelName = null,
+                    IsDirectory = true,
+                    IsServer = false,
+                    IsFile = false
+                };
+
                 icon.gameObject.SetActive(true);
-                isDirectory = true;
+                if (value == "..")
+                {
+                    panelNameText.text = "..";
+                    return;
+                }
+                panelNameText.text = new DirectoryInfo(value).Name;
             }
         }
 
         public VirgisServerDetails Server { 
-            get { return m_server; }
+            get => panelValue;
             set {
-                m_server = value;
+                panelValue = value;
                 icon.gameObject.SetActive(false);
-                isServer = true;
 
                 // name to be displayed is the Server name : Model Name, 
-
-                string displayName = value.ServerName + " : " + value.ModelName;
-                text.text = displayName;
+                
+                panelNameText.text = value.ModelName;
             }
-        }
-
-        public void addFileSelectedListerner(UnityAction<FileListPanel> action) {
-            m_fileSelected.AddListener(action);
-        }
-
-        public void onFileSelected() {
-            m_fileSelected.Invoke(this);
         }
     }
 }
