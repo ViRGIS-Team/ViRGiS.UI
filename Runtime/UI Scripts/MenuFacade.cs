@@ -31,9 +31,7 @@ namespace Virgis {
     /// MenuFacade is the mediator for all components within the Menus GO.
     /// </summary>
     /// 
-    /// For desktop Scene, the Menus GO is used in:
-    /// 1) InputMapping
-    /// 2) Layers UI GO
+
     public class MenuFacade : MonoBehaviour {
 
         public Button startEditButton;
@@ -44,14 +42,14 @@ namespace Virgis {
         public GameObject layersUI;
         public GameObject startMenu;
 
-        private State _appState;
-        private IDisposable startsub;
-        private IDisposable stopsub;
+        protected State MAppState;
+        private IDisposable _startsub;
+        private IDisposable _stopsub;
 
         // Start is called before the first frame update
-        void Start() {
-            _appState = State.instance;
-            if (_appState.EditSession.IsActive()) {
+        protected virtual void Start() {
+            MAppState = State.instance;
+            if (MAppState.EditSession.IsActive()) {
                 startEditButton.interactable = false;
                 stopSaveEditButton.interactable = true;
                 stopDiscardEditButton.interactable = true;
@@ -61,13 +59,13 @@ namespace Virgis {
                 stopDiscardEditButton.interactable = false;
             }
 
-            startsub = _appState.EditSession.StartEvent.Subscribe(OnEditSessionStart);
-            stopsub = _appState.EditSession.EndEvent.Subscribe(OnEditSessionEnd);
+            _startsub = MAppState.EditSession.StartEvent.Subscribe(OnEditSessionStart);
+            _stopsub = MAppState.EditSession.EndEvent.Subscribe(OnEditSessionEnd);
         }
 
         private void OnDestroy() {
-            startsub.Dispose();
-            stopsub.Dispose();
+            _startsub.Dispose();
+            _stopsub.Dispose();
         }
 
         public virtual void Visible(bool thisEvent) {
@@ -79,28 +77,41 @@ namespace Virgis {
             }
         }
 
-        public void OnShowLayersButtonClicked() {
+        public virtual void OnShowLayersButtonClicked() {
             gameObject.SetActive(false);
             layersUI.SetActive(true);
         }
 
-        public void OnStartEditButtonClicked() {
-            _appState.StartEditSession();
+        public virtual void OnStartEditButtonClicked() {
+            MAppState.StartEditSession();
         }
 
-        public void OnStopSaveEditButtonClicked() {
-            _appState.StopSaveEditSession();
+        public virtual void OnStopSaveEditButtonClicked() {
+            MAppState.StopSaveEditSession();
         }
 
-        public void OnStopDiscardEditButtonClicked() {
-            _appState.StopDiscardEditSession();
+        public virtual void OnStopDiscardEditButtonClicked() {
+            MAppState.StopDiscardEditSession();
         }
 
-        public void onFileClicked() {
+        public virtual void onFileClicked() {
             startMenu.SetActive(!startMenu.activeSelf);
-            startMenu.GetComponent<StartFacade>().CreateFilePanels();
+            startMenu.GetComponent<FileMenuPrototype>().CreateFilePanels();
         }
 
+        public virtual void OnAddDataButtonClicked()
+        {
+            //do nothing
+        }
+
+        public virtual void OnNewProjectButtonClicked()
+        {
+            //do nothing
+        }
+        
+        public void OnQuitButtonClicked() {
+            StartCoroutine(State.instance.Exit().AsIEnumerator());
+        }
 
 
         // Changes the state of menu buttons when edit session starts.
@@ -110,7 +121,7 @@ namespace Virgis {
         // This method is triggered when:
         // 1) StartEdit action is triggered
         // 2) Start Edit button is clicked
-        private void OnEditSessionStart(bool ignore) {
+        protected virtual void OnEditSessionStart(bool ignore) {
             startEditButton.interactable = false;
             stopSaveEditButton.interactable = true;
             stopDiscardEditButton.interactable = true;
@@ -125,13 +136,12 @@ namespace Virgis {
         // This method is triggered when:
         // 1) EndEdit action is triggered
         // 2) One of the Stop Edit buttons is clicked
-        private void OnEditSessionEnd(bool saved) {
+        protected virtual void OnEditSessionEnd(bool saved) {
             startEditButton.interactable = true;
             stopSaveEditButton.interactable = false;
             stopDiscardEditButton.interactable = false;
             fileButton.interactable = true;
             quitButton.interactable = true;
         }
-
     }
 }

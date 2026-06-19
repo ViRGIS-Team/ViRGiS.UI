@@ -78,4 +78,13 @@ public class HudFacade : MonoBehaviour
         HudRightText.text = text;
         HudRightText.color = color;
     }
+    
+    /// <summary>
+    /// Actions that are taken when the user clicks on an item
+    /// </summary>
+    /// <param name="event"></param>
+    protected virtual void OnFileSelected(VirgisServerDetails @event)
+    {
+        throw  new NotImplementedException();
+    }
 }

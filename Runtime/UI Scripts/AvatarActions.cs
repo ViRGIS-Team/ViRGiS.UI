@@ -24,33 +24,33 @@ namespace Virgis
         protected Transform m_currentPointerHit; // current marker selected by pointer
         protected Transform m_currentSelected; // current marker in selected state
 
-        protected State m_appState;
-        private Rigidbody m_thisRigidbody;
-        protected bool m_axisEdit = false; // Whether we are in AxisEdit mode
-        protected Quaternion m_panTarget = Quaternion.identity;
+        protected State _mappState;
+        private Rigidbody _mThisRigidbody;
+        protected bool _maxisEdit = false; // Whether we are in AxisEdit mode
+        protected Quaternion _mpanTarget = Quaternion.identity;
         protected bool m_addVertexState; // current state of the button to add vertex
         protected bool m_delVertexState; // current state of the button to remove vertex
         protected bool m_lightEdit = false; // are we currently editing the lights
-        protected List<IDisposable> m_subs = new ();
-        protected List<Coroutine> m_cos = new();
+        protected readonly List<IDisposable> _msubs = new ();
+        protected readonly List<Coroutine> _mcos = new();
 
         private List<SelectionType> SELECT_SELECTION_TYPES = new List<SelectionType>() { SelectionType.SELECT, SelectionType.SELECTALL, SelectionType.MOVEAXIS };
 
         public void Start()
         {
             Debug.Log("Avatar awakens");
-            m_appState = State.instance;
-            m_appState.trackingSpace = MovementVector;
-            m_appState.mainCamera = MainCamera;
-            m_thisRigidbody = GetComponent<Rigidbody>();
-            m_thisRigidbody.detectCollisions = false;
-            m_subs.Add(m_appState.ButtonStatus.Event.Subscribe(select));
-            m_subs.Add(m_appState.ButtonStatus.Event.Subscribe(unSelect));
-            m_subs.Add(m_appState.Project.Event.Subscribe(onProjectLoad));
-            m_subs.Add(m_appState.LayerUpdate.AddEvents.Subscribe(LayerAdded));
-            m_cos.Add(StartCoroutine(Orient()));
-            m_subs.Add(m_appState.ConfigEvent.Subscribe(onConfigLoaded));
-            m_subs.Add(m_appState.MapScale.Event.Subscribe(m_Scale));
+            _mappState = State.instance;
+            _mappState.trackingSpace = MovementVector;
+            _mappState.mainCamera = MainCamera;
+            _mThisRigidbody = GetComponent<Rigidbody>();
+            _mThisRigidbody.detectCollisions = false;
+            _msubs.Add(_mappState.ButtonStatus.Event.Subscribe(select));
+            _msubs.Add(_mappState.ButtonStatus.Event.Subscribe(unSelect));
+            _msubs.Add(_mappState.Project.Event.Subscribe(onProjectLoad));
+            _msubs.Add(_mappState.LayerUpdate.AddEvents.Subscribe(LayerAdded));
+            _mcos.Add(StartCoroutine(Orient()));
+            _msubs.Add(_mappState.ConfigEvent.Subscribe(onConfigLoaded));
+            _msubs.Add(_mappState.MapScale.Event.Subscribe(m_Scale));
         }
 
         public void Update()
@@ -59,8 +59,8 @@ namespace Virgis
         }
 
         public virtual void OnDestroy() {
-            m_subs.ForEach(sub => sub.Dispose());
-            m_cos.ForEach(co =>
+            _msubs.ForEach(sub => sub.Dispose());
+            _mcos.ForEach(co =>
             {
                 if (co != null)
                     StopCoroutine(co);
@@ -71,7 +71,7 @@ namespace Virgis
         {
             while (true)
             {
-                m_appState.Orientation.Set(m_appState.mainCamera.transform.forward);
+                _mappState.Orientation.Set(_mappState.mainCamera.transform.forward);
                 yield return new WaitForSeconds(2f);
             }
         }
@@ -107,7 +107,7 @@ namespace Virgis
         {
             if (pan != 0)
             {
-                m_panTarget *= Quaternion.AngleAxis(pan, Vector3.up);
+                _mpanTarget *= Quaternion.AngleAxis(pan, Vector3.up);
             }
         }
 
@@ -121,7 +121,7 @@ namespace Virgis
 
         public void Scale(float zoom)
         {
-            m_appState.SetScale(zoom);
+            _mappState.SetScale(zoom);
         }
 
         private void m_Scale(float zoom) {
@@ -131,7 +131,7 @@ namespace Virgis
 
         public void moveTo(MoveArgs args)
         {
-            if (!m_axisEdit && m_currentSelected != null)
+            if (!_maxisEdit && m_currentSelected != null)
             {
                 m_currentSelected.SendMessage("MoveTo", args, SendMessageOptions.DontRequireReceiver);
             }
@@ -141,15 +141,15 @@ namespace Virgis
         {
             if (
                 button.activate &&
-                SELECT_SELECTION_TYPES.Contains(m_appState.ButtonStatus.SelectionType) &&
-                m_appState.InEditSession() &&
+                SELECT_SELECTION_TYPES.Contains(_mappState.ButtonStatus.SelectionType) &&
+                _mappState.InEditSession() &&
                 m_currentPointerHit != null &&
                 LayerIsEditable())
             {
                 m_editSelected = true;
                 m_currentSelected = m_currentPointerHit;
                 m_selectedDistance = State.instance.lastHit.distance;
-                m_currentSelected.SendMessage("Selected", m_appState.ButtonStatus.SelectionType, SendMessageOptions.DontRequireReceiver);
+                m_currentSelected.SendMessage("Selected", _mappState.ButtonStatus.SelectionType, SendMessageOptions.DontRequireReceiver);
             }
             else if (button.activate &&
                      button.isLhGrip )
@@ -164,7 +164,7 @@ namespace Virgis
             {
                 m_editSelected = false;
                 if (m_currentSelected != null)
-                    m_currentSelected?.SendMessage("UnSelected", m_appState.ButtonStatus.SelectionType, SendMessageOptions.DontRequireReceiver);
+                    m_currentSelected?.SendMessage("UnSelected", _mappState.ButtonStatus.SelectionType, SendMessageOptions.DontRequireReceiver);
                 m_currentSelected = null;
                 m_selectedDistance = 0;
                 m_lightEdit = false;
@@ -173,7 +173,7 @@ namespace Virgis
 
         protected void MoveAxis(MoveArgs args)
         {
-            if (m_axisEdit)
+            if (_maxisEdit)
             {
                 if (m_currentSelected != null)
                     m_currentSelected?.SendMessage("MoveAxis", args, SendMessageOptions.DontRequireReceiver);
@@ -197,12 +197,12 @@ namespace Virgis
 
         protected void MoveCamera(Vector3 force)
         {
-            m_thisRigidbody.AddForce(m_appState.trackingSpace.rotation * force, ForceMode.Force);
+            _mThisRigidbody.AddForce(_mappState.trackingSpace.rotation * force, ForceMode.Force);
         }
 
         protected void AddVertex(Vector3 pos)
         {
-            if (m_appState.InEditSession() && m_currentPointerHit != null && LayerIsEditable())
+            if (_mappState.InEditSession() && m_currentPointerHit != null && LayerIsEditable())
             {
                 m_currentPointerHit.SendMessage("AddVertex", pos, SendMessageOptions.DontRequireReceiver);
                 m_addVertexState = false;
@@ -211,7 +211,7 @@ namespace Virgis
 
         protected void RemoveVertex()
         {
-            if (m_appState.InEditSession() && m_currentSelected != null && LayerIsEditable())
+            if (_mappState.InEditSession() && m_currentSelected != null && LayerIsEditable())
             {
                 m_currentSelected.SendMessage("RemoveVertex", m_currentSelected, SendMessageOptions.DontRequireReceiver);
                 m_currentSelected = null;

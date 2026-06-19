@@ -22,6 +22,7 @@ SOFTWARE. */
 
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using System;
 using System.Collections.Generic;
 
@@ -31,30 +32,31 @@ namespace Virgis
     {
         
         public Toggle viewLayerToggle;
-        private IVirgisLayer m_layer;
-        public Dictionary<ulong, LayerUIPanel> m_layersMap;
+        private IVirgisLayer _mLayer;
+        public Dictionary<ulong, LayerUIPanel> MLayersMap;
         
-        public IVirgisLayer layer {
-            get => m_layer;
+        
+        public IVirgisLayer Layer {
+            get => _mLayer;
             set {
-                m_layer = value;
+                _mLayer = value;
                 // layer name to be displayed is RecordSet.DisplayName, 
                 // or RecordSet.Id as fallback
-                string displayName = String.IsNullOrEmpty(m_layer.GetMetadata().DisplayName)
-                    ? $"ID: {m_layer.GetMetadata().Id}"
-                    : m_layer.GetMetadata().DisplayName;
+                string displayName = String.IsNullOrEmpty(_mLayer.GetMetadata().DisplayName)
+                    ? $"ID: {_mLayer.GetMetadata().Id}"
+                    : _mLayer.GetMetadata().DisplayName;
                 panelNameText.text = displayName;
-                if (layer.isContainer) {
-                    foreach (IVirgisLayer subLayer in layer.subLayers) {
+                if (Layer.isContainer) {
+                    foreach (IVirgisLayer subLayer in Layer.subLayers) {
                         AddLayer(subLayer);
                     }
                 } else {
-                    AddLayer(layer);
+                    AddLayer(Layer);
                 }
             }
         }
 
-        public void AddLayer(IVirgisLayer layer) 
+        private void AddLayer(IVirgisLayer layer) 
         {
             LayerUIPanel panelScript = AddPanel<LayerUIPanel>();
             // set the layer in the panel
@@ -73,7 +75,7 @@ namespace Virgis
                 // not in edit session, layer cannot be set to edit
                 panelScript.editLayerToggle.interactable = false;
             }
-            m_layersMap[layer.GetId()] = panelScript;
+            MLayersMap[layer.GetId()] = panelScript;
             (transform as RectTransform).ForceUpdateRectTransforms();
         }
         private void OnLayerPanelEditSelected(LayerUIPanel layerPanel, bool selected)
@@ -82,15 +84,15 @@ namespace Virgis
             {
                 IVirgisLayer oldEditableLayer = State.instance.EditSession.editableLayer;
                 State.instance.EditSession.editableLayer = layerPanel.layer;
-                if (oldEditableLayer != null && m_layersMap.ContainsKey(oldEditableLayer.GetId()))
-                    m_layersMap[oldEditableLayer.GetId()].editLayerToggle.isOn = false;
+                if (oldEditableLayer != null && MLayersMap.ContainsKey(oldEditableLayer.GetId()))
+                    MLayersMap[oldEditableLayer.GetId()].editLayerToggle.isOn = false;
             }
             else
             {
                 IVirgisLayer oldEditableLayer = State.instance.EditSession.editableLayer;
                 State.instance.EditSession.editableLayer = null;
                 if (oldEditableLayer != null)
-                    m_layersMap[oldEditableLayer.GetId()].editLayerToggle.isOn = false;
+                    MLayersMap[oldEditableLayer.GetId()].editLayerToggle.isOn = false;
             }
         }
     }

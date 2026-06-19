@@ -26,12 +26,11 @@ using System;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
-using R3;
 
 
 namespace Virgis {
 
-    public class StartFacade : MonoBehaviour
+    public class FileMenuPrototype : MonoBehaviour
     {
 
         public GameObject fileListPanelPrefab;
@@ -43,16 +42,13 @@ namespace Virgis {
         protected State m_appState;
         protected List<IDisposable> m_subs = new List<IDisposable>();
 
-        protected SearchOption m_searchOptions = SearchOption.AllDirectories;
+        protected SearchOption m_searchOptions = SearchOption.TopDirectoryOnly;
         
 
         // Start is called before the first frame update
         protected virtual void Start()
         {
             m_appState = State.instance;
-            m_subs.Add(m_appState.Project.Event.Subscribe(OnProjectLoad));
-            m_subs.Add(State.instance.ServerEvent.Subscribe(OnServerRegistered));
-            m_subs.Add(State.instance.Client.Event.Subscribe(OnClientConnect));
         }
 
         private void OnDestroy()
@@ -61,10 +57,11 @@ namespace Virgis {
         }
 
         /// <summary>
-        /// Action to be Taken when the Project has loaded. Normally just Hide the panels.
+        /// Action to be Taken when the File has loaded. Normally just Hide the panels.
         /// </summary>
         /// <param name="proj"></param>
-        private void OnProjectLoad(ProjectEventType thisEvent)
+        /// <param name="thisEvent"></param>
+        protected void OnFileLoad(ProjectEventType thisEvent)
         {
             gameObject.SetActive(false);
         }
@@ -77,27 +74,16 @@ namespace Virgis {
         /// </summary>
         public void CreateFilePanels()
         {
-            GameObject newFilePanel;
-
             ClearPanels();
-            try
+
+            if (m_projectDirectory == null)
             {
-                if (m_projectDirectory == null)
-                {
-                    m_projectDirectory = Path.GetPathRoot(
-                        Environment.GetFolderPath(
-                            Environment.SpecialFolder.MyDocuments)
-                        );
-                }
-            }
-            catch (Exception e)
-            {
-                _ = e;
-                m_projectDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                m_projectDirectory = Environment.GetFolderPath(
+                    Environment.SpecialFolder.MyDocuments
+                );
             }
 
-
-            newFilePanel = Instantiate(fileListPanelPrefab, fileScrollView.transform);
+            GameObject newFilePanel = Instantiate(fileListPanelPrefab, fileScrollView.transform);
 
             // obtain the panel script
             FileListPanel panelScript = newFilePanel.GetComponentInChildren<FileListPanel>();
@@ -152,7 +138,7 @@ namespace Virgis {
         }
 
         /// <summary>
-        /// Call this to clear  the panels for server access
+        /// Call this to clear the panels
         ///
         /// </summary>
         public void ClearPanels()
@@ -165,88 +151,14 @@ namespace Virgis {
                 }
             }
         }
-
+        
         /// <summary>
         /// Actions that are taken when the user clicks on an item
         /// </summary>
         /// <param name="event"></param>
-        protected void OnFileSelected(VirgisServerDetails @event)
+        protected virtual void OnFileSelected(VirgisServerDetails @event)
         {
-            if (@event.IsDirectory)
-            {
-                // If directory - expand Directory
-                if (@event.ServerName == "..")
-                {
-                    m_projectDirectory = Path.GetDirectoryName(m_projectDirectory);
-                }
-                else
-                {
-                    m_projectDirectory = @event.ServerName;
-                }
-                m_appState.SetConfig("CurrentFolder", @event.ServerName);
-                CreateFilePanels();
-                return;
-            }
-            if (@event.IsServer)
-            {
-
-                // if Server - connect to the server
-                m_appState.ConnectClient(@event);
-                return;
-            }
-            //otherwise - open the file
-            Debug.Log($"File selected : {@event.ServerName}");
-            gameObject.SetActive(false);
-
-            // Kill off all of the existing layers
-            m_appState.UnloadProject(() => m_loadProject(@event.ServerName));
-        }
-
-        public void m_loadProject(string file)
-        {
-            //create the new layers
-            if (!m_appState.LoadProject(file))
-            {
-                gameObject.SetActive(true);
-            }
-        }
-
-        protected void OnServerRegistered(VirgisServerDetails details)
-        {
-            if (details.Endpoint == null) return;
-            //Create this filelist panel
-            GameObject newServerPanel = Instantiate(serverListPanelPrefab, fileScrollView.transform);
-
-            // obtain the panel script  
-            ContainerPanel serverPanel = newServerPanel.GetComponentInChildren<ContainerPanel>();
-
-            //set the server name
-            
-            serverPanel.SetPanelText(details.ServerName);
-            serverPanel.Expand(true);
-            
-            // Add the model panel
-            
-            FileListPanel modelPanel = serverPanel.AddPanel<FileListPanel>();
-            modelPanel.Server =  details;
-            
-            modelPanel.AddListener(OnFileSelected);
-            gameObject.GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 1f;
-        }
-
-        protected void OnClientConnect(ClientEventType eventType)
-        {
-            switch (eventType)
-            {
-                case ClientEventType.Started:
-                    gameObject.SetActive(false);
-                    break;
-                case ClientEventType.Complete:
-                    break;
-                case ClientEventType.Failed:
-                    gameObject.SetActive(true);
-                    break;
-            }
+            throw  new NotImplementedException();
         }
     }
 }

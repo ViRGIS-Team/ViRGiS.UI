@@ -36,12 +36,12 @@ namespace Virgis
         public Text panelNameText;
         public Toggle expandToggle;
 
-        void Start()
+        protected void Start()
         {
             expandToggle?.onValueChanged.AddListener(Expand);
         }
 
-        private void OnDestroy()
+        protected void OnDestroy()
         {
             expandToggle?.onValueChanged.RemoveListener(Expand);
         }
