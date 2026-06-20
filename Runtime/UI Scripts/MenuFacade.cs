@@ -42,6 +42,8 @@ namespace Virgis {
         public GameObject layersUI;
         public GameObject startMenu;
 
+        public bool allowFileButton;
+
         protected State MAppState;
         private IDisposable _startsub;
         private IDisposable _stopsub;
@@ -58,6 +60,8 @@ namespace Virgis {
                 stopSaveEditButton.interactable = false;
                 stopDiscardEditButton.interactable = false;
             }
+            
+            if (!allowFileButton)  fileButton.interactable = false;
 
             _startsub = MAppState.EditSession.StartEvent.Subscribe(OnEditSessionStart);
             _stopsub = MAppState.EditSession.EndEvent.Subscribe(OnEditSessionEnd);
@@ -140,7 +144,7 @@ namespace Virgis {
             startEditButton.interactable = true;
             stopSaveEditButton.interactable = false;
             stopDiscardEditButton.interactable = false;
-            fileButton.interactable = true;
+            if (allowFileButton) fileButton.interactable = true;
             quitButton.interactable = true;
         }
     }
