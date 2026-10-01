@@ -80,7 +80,7 @@ namespace Virgis {
                 editLayerToggle?.onValueChanged.RemoveAllListeners();
                 m_editSelectedEvent.RemoveAllListeners();
                 Destroy(feature);
-                (m_layer as VirgisLayer).FeatureShape.OnValueChanged -= OnFeatureShape;
+                (m_layer as VirgisLayer).featureShape.OnValueChanged -= OnFeatureShape;
             }
             m_subs.ForEach(sub => sub.Dispose());
             (m_layer as VirgisLayer).DefaultCol.OnValueChanged -= UpdateMaterial;
@@ -110,7 +110,7 @@ namespace Virgis {
                     }
                     else
                     {
-                        (m_layer as VirgisLayer).FeatureShape.OnValueChanged += OnFeatureShape;
+                        (m_layer as VirgisLayer).featureShape.OnValueChanged += OnFeatureShape;
                     }
                 }
             }
