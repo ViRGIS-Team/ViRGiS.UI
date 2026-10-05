@@ -38,28 +38,27 @@ namespace Virgis {
         public GameObject serverListPanelPrefab;
         public string searchPattern;
 
-        protected string m_projectDirectory;
-        protected State m_appState;
-        protected List<IDisposable> m_subs = new List<IDisposable>();
+        protected string MProjectDirectory;
+        protected State MAppState;
+        protected readonly List<IDisposable> MSubs = new List<IDisposable>();
 
-        protected SearchOption m_searchOptions = SearchOption.TopDirectoryOnly;
+        protected SearchOption MSearchOptions = SearchOption.TopDirectoryOnly;
         
 
         // Start is called before the first frame update
         protected virtual void Start()
         {
-            m_appState = State.Instance;
+            MAppState = State.Instance;
         }
 
         private void OnDestroy()
         {
-            m_subs.ForEach(sub => sub.Dispose());
+            MSubs.ForEach(sub => sub.Dispose());
         }
 
         /// <summary>
         /// Action to be Taken when the File has loaded. Normally just Hide the panels.
         /// </summary>
-        /// <param name="proj"></param>
         /// <param name="thisEvent"></param>
         protected void OnFileLoad(ProjectEventType thisEvent)
         {
@@ -76,12 +75,9 @@ namespace Virgis {
         {
             ClearPanels();
 
-            if (m_projectDirectory == null)
-            {
-                m_projectDirectory = Environment.GetFolderPath(
-                    Environment.SpecialFolder.MyDocuments
-                );
-            }
+            MProjectDirectory ??= Environment.GetFolderPath(
+                Environment.SpecialFolder.MyDocuments
+            );
 
             GameObject newFilePanel = Instantiate(fileListPanelPrefab, fileScrollView.transform);
 
@@ -93,9 +89,9 @@ namespace Virgis {
 
             panelScript.AddListener(OnFileSelected);
 
-            if (m_searchOptions == SearchOption.TopDirectoryOnly)
+            if (MSearchOptions == SearchOption.TopDirectoryOnly)
             {
-                foreach (string directory in Directory.GetDirectories(m_projectDirectory))
+                foreach (string directory in Directory.GetDirectories(MProjectDirectory))
                 {
 
                     if (!Regex.Match(Path.GetFileName(directory), @"^\..*").Success)
@@ -116,14 +112,14 @@ namespace Virgis {
             }
 
             // get the file list
-            foreach (string file in Directory.GetFiles(m_projectDirectory, "*", m_searchOptions))
+            foreach (string file in Directory.GetFiles(MProjectDirectory, "*", MSearchOptions))
             {
 
                 if (!Regex.Match(Path.GetFileName(file), @"^\..*").Success && Regex.Match(Path.GetFileName(file), searchPattern).Success)
                 {
 
                     //Create this filelist panel
-                    newFilePanel = (GameObject)Instantiate(fileListPanelPrefab, fileScrollView.transform);
+                    newFilePanel = Instantiate(fileListPanelPrefab, fileScrollView.transform);
 
                     // obtain the panel script
                     panelScript = newFilePanel.GetComponentInChildren<FileListPanel>();
@@ -133,7 +129,7 @@ namespace Virgis {
 
                     panelScript.AddListener(OnFileSelected);
                 }
-            };
+            }
             gameObject.GetComponentInChildren<ScrollRect>().verticalNormalizedPosition = 1f;
         }
 

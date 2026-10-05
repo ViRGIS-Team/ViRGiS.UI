@@ -28,11 +28,11 @@ namespace Virgis {
         public Toggle snapGridToggle;
         public Toggle snapAnchorToggle;
 
-        private State m_appState;
+        private State _mAppState;
 
         // Start is called before the first frame update
         void Start() {
-            m_appState = State.Instance;
+            _mAppState = State.Instance;
 
             // There is a bug in Unity where if you set OnValueChange event
             // in Unity inspector, the method will be called with the same
@@ -44,33 +44,33 @@ namespace Virgis {
         }
 
         // Select the EditOn toggle button and invoke StartEdit event.
-        public void OnSnapGridToggleValueChanged(bool enabled) {
-            if (enabled) {
+        protected void OnSnapGridToggleValueChanged(bool enable) {
+            if (enable) {
                 if (snapAnchorToggle.isOn) {
                     snapAnchorToggle.isOn = false;
                 }
-                m_appState.EditSession.mode = EditSession.EditMode.SnapGrid;
-                print($"Edit mode = {m_appState.EditSession.mode}");
+                _mAppState.EditSession.mode = EditSession.EditMode.SnapGrid;
+                print($"Edit mode = {_mAppState.EditSession.mode}");
             } else {
                 if (!snapAnchorToggle.isOn) {
-                    m_appState.EditSession.mode = EditSession.EditMode.None;
-                    print($"Edit mode = {m_appState.EditSession.mode}");
+                    _mAppState.EditSession.mode = EditSession.EditMode.None;
+                    print($"Edit mode = {_mAppState.EditSession.mode}");
                 }
             }
         }
 
         // Select the EditOff toggle button and invoke EndEdit event.
-        public void OnSnapAnchorToggleValueChanged(bool enabled) {
-            if (enabled) {
+        protected void OnSnapAnchorToggleValueChanged(bool enable) {
+            if (enable) {
                 if (snapGridToggle.isOn) {
                     snapGridToggle.isOn = false;
                 }
-                m_appState.EditSession.mode = EditSession.EditMode.SnapAnchor;
-                print($"Edit mode = {m_appState.EditSession.mode}");
+                _mAppState.EditSession.mode = EditSession.EditMode.SnapAnchor;
+                print($"Edit mode = {_mAppState.EditSession.mode}");
             } else {
                 if (!snapGridToggle.isOn) {
-                    m_appState.EditSession.mode = EditSession.EditMode.None;
-                    print($"Edit mode = {m_appState.EditSession.mode}");
+                    _mAppState.EditSession.mode = EditSession.EditMode.None;
+                    print($"Edit mode = {_mAppState.EditSession.mode}");
                 }
             }
         }
