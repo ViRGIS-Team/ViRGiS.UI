@@ -48,12 +48,12 @@ namespace Virgis
         // Start is called before the first frame update
         protected virtual void Start()
         {
-            _mAppState = State.instance;
+            _mAppState = State.Instance;
             _mSubs.Add(_mAppState.LayerUpdate.AddEvents.Subscribe(OnLayerUpdate));
             _mSubs.Add(_mAppState.LayerUpdate.DelEvents.Subscribe(OnLayerDowndate));
             _mLayersMap = new Dictionary<ulong, LayerUIPanel>();
 
-            foreach (VirgisLayer layer in State.instance.Layers)
+            foreach (VirgisLayer layer in State.Instance.Layers)
             {
                 CreateLayerPanel(layer);
             }

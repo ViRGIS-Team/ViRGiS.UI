@@ -40,7 +40,7 @@ namespace Virgis {
 
         // Start is called before the first frame update
         public void Start() {
-            m_appState = State.instance;
+            m_appState = State.Instance;
             if (leftInfoPanel) {
                 m_Subs.Add(m_appState.Info.Event.Subscribe(UpdateText));
             }

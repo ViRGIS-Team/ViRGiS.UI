@@ -48,7 +48,7 @@ namespace Virgis {
         // Start is called before the first frame update
         protected virtual void Start()
         {
-            m_appState = State.instance;
+            m_appState = State.Instance;
         }
 
         private void OnDestroy()

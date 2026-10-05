@@ -38,7 +38,7 @@ public class HudFacade : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        State appState = State.instance;
+        State appState = State.Instance;
         m_Subs.Add(appState.EditSession.StartEvent.Subscribe(OnEditSessionStart));
         m_Subs.Add(appState.EditSession.EndEvent.Subscribe(OnEditSessionEnd));
         m_Subs.Add(appState.MapScale.Event.Subscribe(OnZoomChanged));

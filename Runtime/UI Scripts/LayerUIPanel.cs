@@ -60,12 +60,12 @@ namespace Virgis {
                 if (editLayerToggle != null)
                     editLayerToggle.onValueChanged.AddListener(OnEditToggleValueChange);
             }
-            m_subs.Add(State.instance.EditSession.ChangeLayerEvent.Subscribe(OnEditLayerChanged));
+            m_subs.Add(State.Instance.EditSession.ChangeLayerEvent.Subscribe(OnEditLayerChanged));
             if (IsEditPanel)
             {
-                m_subs.Add(State.instance.EditSession.StartEvent.Subscribe(OnStartEditSession));
-                m_subs.Add(State.instance.EditSession.EndEvent.Subscribe(OnEndEditSession));
-                if (State.instance.EditSession.IsActive())
+                m_subs.Add(State.Instance.EditSession.StartEvent.Subscribe(OnStartEditSession));
+                m_subs.Add(State.Instance.EditSession.EndEvent.Subscribe(OnEndEditSession));
+                if (State.Instance.EditSession.IsActive())
                 {
                     OnStartEditSession(true);
                 }
@@ -93,13 +93,13 @@ namespace Virgis {
                 m_layer = value;
                 if (panelNameText != null)
                 {
-                    if (m_layer.sourceName == null || layer.sourceName == "")
+                    if (m_layer.SourceName == null || layer.SourceName == "")
                     {
-                        panelNameText.text = m_layer.featureType.ToString();
+                        panelNameText.text = m_layer.FeatureType.ToString();
                     }
                     else
                     {
-                        panelNameText.text = m_layer.sourceName;
+                        panelNameText.text = m_layer.SourceName;
                     }
                 }
                 if (ShowFeature)

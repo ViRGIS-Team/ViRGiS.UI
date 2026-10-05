@@ -39,14 +39,14 @@ namespace Virgis
         public void Start()
         {
             Debug.Log("Avatar awakens");
-            _mappState = State.instance;
-            _mappState.trackingSpace = MovementVector;
-            _mappState.mainCamera = MainCamera;
+            _mappState = State.Instance;
+            _mappState.TrackingSpace = MovementVector;
+            _mappState.MainCamera = MainCamera;
             _mThisRigidbody = GetComponent<Rigidbody>();
             _mThisRigidbody.detectCollisions = false;
             _msubs.Add(_mappState.ButtonStatus.Event.Subscribe(select));
             _msubs.Add(_mappState.ButtonStatus.Event.Subscribe(unSelect));
-            _msubs.Add(_mappState.Project.Event.Subscribe(onProjectLoad));
+            _msubs.Add(_mappState.ProjectChange.Event.Subscribe(onProjectLoad));
             _msubs.Add(_mappState.LayerUpdate.AddEvents.Subscribe(LayerAdded));
             _mcos.Add(StartCoroutine(Orient()));
             _msubs.Add(_mappState.ConfigEvent.Subscribe(onConfigLoaded));
@@ -71,7 +71,7 @@ namespace Virgis
         {
             while (true)
             {
-                _mappState.Orientation.Set(_mappState.mainCamera.transform.forward);
+                _mappState.Orientation.Set(_mappState.MainCamera.transform.forward);
                 yield return new WaitForSeconds(2f);
             }
         }
@@ -115,7 +115,7 @@ namespace Virgis
         {
             if (factor != 0)
             {
-                Scale(State.instance.MapScale.Get() * (1 - factor));
+                Scale(State.Instance.MapScale.Get() * (1 - factor));
             }
         }
 
@@ -148,7 +148,7 @@ namespace Virgis
             {
                 m_editSelected = true;
                 m_currentSelected = m_currentPointerHit;
-                m_selectedDistance = State.instance.lastHit.distance;
+                m_selectedDistance = State.Instance.LastHit.distance;
                 m_currentSelected.SendMessage("Selected", _mappState.ButtonStatus.SelectionType, SendMessageOptions.DontRequireReceiver);
             }
             else if (button.activate &&
@@ -191,13 +191,13 @@ namespace Virgis
             {
                 layer = m_currentPointerHit?.GetComponentInParent<IVirgisLayer>();
             }
-            if (layer == null || layer !=State.instance.EditSession.editableLayer) return false;
+            if (layer == null || layer !=State.Instance.EditSession.editableLayer) return false;
             return layer.IsWriteable;
         }
 
         protected void MoveCamera(Vector3 force)
         {
-            _mThisRigidbody.AddForce(_mappState.trackingSpace.rotation * force, ForceMode.Force);
+            _mThisRigidbody.AddForce(_mappState.TrackingSpace.rotation * force, ForceMode.Force);
         }
 
         protected void AddVertex(Vector3 pos)

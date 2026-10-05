@@ -46,8 +46,8 @@ namespace Virgis
                     ? $"ID: {_mLayer.GetMetadata().Id}"
                     : _mLayer.GetMetadata().DisplayName;
                 panelNameText.text = displayName;
-                if (Layer.isContainer) {
-                    foreach (IVirgisLayer subLayer in Layer.subLayers) {
+                if (Layer.IsContainer) {
+                    foreach (IVirgisLayer subLayer in Layer.SubLayers) {
                         AddLayer(subLayer);
                     }
                 } else {
@@ -65,7 +65,7 @@ namespace Virgis
             panelScript.AddEditSelectedListener(OnLayerPanelEditSelected);
             // when the Layers Menu screen is first displayed,
             // edit session could already be active
-            if (State.instance.EditSession.IsActive())
+            if (State.Instance.EditSession.IsActive())
             {
                 // in edit session, layer can be set to edit
                 panelScript.editLayerToggle.interactable = true;
@@ -82,15 +82,15 @@ namespace Virgis
         {
             if (selected)
             {
-                IVirgisLayer oldEditableLayer = State.instance.EditSession.editableLayer;
-                State.instance.EditSession.editableLayer = layerPanel.layer;
+                IVirgisLayer oldEditableLayer = State.Instance.EditSession.editableLayer;
+                State.Instance.EditSession.editableLayer = layerPanel.layer;
                 if (oldEditableLayer != null && MLayersMap.ContainsKey(oldEditableLayer.GetId()))
                     MLayersMap[oldEditableLayer.GetId()].editLayerToggle.isOn = false;
             }
             else
             {
-                IVirgisLayer oldEditableLayer = State.instance.EditSession.editableLayer;
-                State.instance.EditSession.editableLayer = null;
+                IVirgisLayer oldEditableLayer = State.Instance.EditSession.editableLayer;
+                State.Instance.EditSession.editableLayer = null;
                 if (oldEditableLayer != null)
                     MLayersMap[oldEditableLayer.GetId()].editLayerToggle.isOn = false;
             }

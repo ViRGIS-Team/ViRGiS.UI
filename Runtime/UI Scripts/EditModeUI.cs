@@ -32,7 +32,7 @@ namespace Virgis {
 
         // Start is called before the first frame update
         void Start() {
-            m_appState = State.instance;
+            m_appState = State.Instance;
 
             // There is a bug in Unity where if you set OnValueChange event
             // in Unity inspector, the method will be called with the same

@@ -23,6 +23,7 @@ SOFTWARE. */
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Collections.Generic;
 using R3;
 
 namespace Virgis {
@@ -45,41 +46,40 @@ namespace Virgis {
         public bool allowFileButton;
 
         protected State MAppState;
-        private IDisposable _startsub;
-        private IDisposable _stopsub;
+        
+        protected readonly List<IDisposable> MSubs = new();
 
         // Start is called before the first frame update
         protected virtual void Start() {
-            MAppState = State.instance;
+            MAppState = State.Instance;
             if (MAppState.EditSession.IsActive()) {
                 startEditButton.interactable = false;
                 stopSaveEditButton.interactable = true;
                 stopDiscardEditButton.interactable = true;
             } else {
-                startEditButton.interactable = true;
+                startEditButton.interactable = false;
                 stopSaveEditButton.interactable = false;
                 stopDiscardEditButton.interactable = false;
             }
             
             if (!allowFileButton)  fileButton.interactable = false;
 
-            _startsub = MAppState.EditSession.StartEvent.Subscribe(OnEditSessionStart);
-            _stopsub = MAppState.EditSession.EndEvent.Subscribe(OnEditSessionEnd);
+            MSubs.Add( MAppState.EditSession.StartEvent.Subscribe(OnEditSessionStart));
+            MSubs.Add( MAppState.EditSession.EndEvent.Subscribe(OnEditSessionEnd));
+            MSubs.Add(MAppState.ProjectChange.Event.Subscribe(OnLoad));
         }
 
         private void OnDestroy() {
-            _startsub.Dispose();
-            _stopsub.Dispose();
+            MSubs.ForEach(x => x.Dispose());
         }
 
-        public virtual void Visible(bool thisEvent) {
+        public virtual void Visible(bool thisEvent)
+        {
             bool isActive = gameObject.activeSelf;
-            if (isActive) {
-                gameObject.SetActive(false);
-            } else {
-                gameObject.SetActive(true);
-            }
+            gameObject.SetActive(!isActive);
         }
+        
+        
 
         public virtual void OnShowLayersButtonClicked() {
             gameObject.SetActive(false);
@@ -98,7 +98,7 @@ namespace Virgis {
             MAppState.StopDiscardEditSession();
         }
 
-        public virtual void onFileClicked() {
+        public virtual void OnFileClicked() {
             startMenu.SetActive(!startMenu.activeSelf);
             startMenu.GetComponent<FileMenuPrototype>().CreateFilePanels();
         }
@@ -114,7 +114,7 @@ namespace Virgis {
         }
         
         public void OnQuitButtonClicked() {
-            StartCoroutine(State.instance.Exit().AsIEnumerator());
+            StartCoroutine(State.Instance.Exit().AsIEnumerator());
         }
 
 
@@ -146,6 +146,11 @@ namespace Virgis {
             stopDiscardEditButton.interactable = false;
             if (allowFileButton) fileButton.interactable = true;
             quitButton.interactable = true;
+        }
+
+        protected virtual void OnLoad(ProjectEventType eventType)
+        {
+            startEditButton.interactable = true;
         }
     }
 }

@@ -61,21 +61,21 @@ namespace Virgis
             if (TryGetUIModel(out TrackedDeviceModel model)) {
                 if (model.currentRaycast.isValid) {
                     if (m_ControllerNode == XRNode.LeftHand)
-                        appState.lhguiActive = true;
+                        appState.LhguiActive = true;
                     else
-                        appState.rhguiActive = true;
+                        appState.RhguiActive = true;
                 } else {
                     if (m_ControllerNode == XRNode.LeftHand)
-                        appState.lhguiActive = false;
+                        appState.LhguiActive = false;
                     else
-                        appState.rhguiActive = false;
+                        appState.RhguiActive = false;
                 }
             }
         }
 
         private new void Start() {
             base.Start();
-            appState = State.instance;
+            appState = State.Instance;
             m_ControllerNode = GetComponent<VirgisUIController>().controllerNode;
         }
 
